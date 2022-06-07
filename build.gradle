@@ -1,0 +1,59 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+buildscript {
+	ext {
+		spring = '2.6.7'
+		openapi = '1.6.8'
+	}
+}
+
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version "${spring}"
+}
+
+group = 'ru.sitronics.tn'
+sourceCompatibility = '17'
+
+configurations {
+	all {
+		exclude module: 'spring-boot-starter-tomcat'
+	}
+	springBom
+	annotationProcessor.extendsFrom springBom
+	implementation.extendsFrom springBom
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	developmentOnly.extendsFrom springBom
+	runtimeClasspath {
+		extendsFrom developmentOnly
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+jar {
+	enabled = false
+}
+
+dependencies {
+	springBom platform(SpringBootPlugin.BOM_COORDINATES)
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation ('org.springframework.boot:spring-boot-starter-undertow') { exclude module: 'undertow-websockets-jsr' }
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly "org.springdoc:springdoc-openapi-ui:${openapi}"
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation "org.mockito:mockito-core"
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
