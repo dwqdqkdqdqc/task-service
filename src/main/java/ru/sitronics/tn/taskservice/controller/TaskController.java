@@ -1,0 +1,91 @@
+package ru.sitronics.tn.taskservice.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
+import ru.sitronics.tn.taskservice.dto.TaskDto;
+import ru.sitronics.tn.taskservice.model.Task;
+import ru.sitronics.tn.taskservice.model.TaskStatus;
+import ru.sitronics.tn.taskservice.model.TaskType;
+import ru.sitronics.tn.taskservice.service.TaskService;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+@RestController
+@RequestMapping(path = "/task", produces = APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
+public class TaskController {
+
+    private static final Logger logger = LoggerFactory.getLogger(Task.class);
+    private static final String NEW_TASK_LOG = "New task was created id:{}";
+    private static final String TASK_CLAIMED_LOG = "Task was claimed id:{}";
+    private static final String TASK_UNCLAIMED_LOG = "Task was unclaimed id:{}";
+    private static final String TASK_REASSIGNED_LOG = "Task was reassigned id:{}";
+    private static final String TASK_COMPLETED_LOG = "Task was completed id:{}";
+
+    private final TaskService taskService;
+
+    @InitBinder    /* Converts empty strings into null when a form is submitted */
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+    }
+
+    @GetMapping("/types")
+    public ResponseEntity<Map<TaskType, String>> getTaskTypes() {
+        return ResponseEntity.ok(taskService.getTaskTypes());
+    }
+
+    @GetMapping("/statuses")
+    public ResponseEntity<Map<TaskStatus, String>> getTaskStatuses() {
+        return ResponseEntity.ok(taskService.getTaskStatuses());
+    }
+
+    @PostMapping(consumes = APPLICATION_JSON_VALUE)
+    public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto taskDto) {
+        final TaskDto response = taskService.createTask(taskDto);
+        logger.info(NEW_TASK_LOG, response.toString());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TaskDto>> getTasks() {
+        return ResponseEntity.ok(taskService.getTasks());
+    }
+
+    @PostMapping("/{taskId}/claim")
+    public ResponseEntity<Void> claimTask(@PathVariable String taskId, @RequestParam String userId) {
+        taskService.claimTask(taskId, userId);
+        logger.info(TASK_CLAIMED_LOG, taskId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{taskId}/unclaim")
+    public ResponseEntity<Void> unclaimTask(@PathVariable String taskId) {
+        taskService.unclaimTask(taskId);
+        logger.info(TASK_UNCLAIMED_LOG, taskId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{taskId}/reassign-by-current-user")
+    public ResponseEntity<Void> reassignByCurrentUser(String taskId, String currentUserId, String newUserId) {
+        taskService.reassignByCurrentUser(taskId, currentUserId, newUserId);
+        logger.info(TASK_REASSIGNED_LOG, taskId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{taskId}/complete")
+    public ResponseEntity<Void> completeTask(@PathVariable String taskId) {
+        taskService.completeTask(taskId);
+        logger.info(TASK_COMPLETED_LOG, taskId);
+        return ResponseEntity.noContent().build();
+    }
+}
