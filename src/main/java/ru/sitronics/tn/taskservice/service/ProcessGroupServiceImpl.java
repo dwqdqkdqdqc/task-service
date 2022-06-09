@@ -61,7 +61,7 @@ public class ProcessGroupServiceImpl implements ProcessGroupService {
 
             try {
                 ProcessInstanceDto processInstanceDto = Objects.requireNonNull(processEngineResponse.getBody());
-                process.setProcessEngineId(processInstanceDto.getId());
+                process.setProcessInstanceId(processInstanceDto.getId());
                 process.setDefinitionId(processEngineResponse.getBody().getDefinitionId());
             } catch (NullPointerException e) {
                 throw new ProcessGroupException("Process instance is null", e);
