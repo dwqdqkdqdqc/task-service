@@ -8,6 +8,6 @@ import javax.validation.constraints.NotBlank;
 public class ProcessDto {
     private Long id;
     @NotBlank
-    private String processEngineId;
+    private String processInstanceId;
     private String definitionId;
 }

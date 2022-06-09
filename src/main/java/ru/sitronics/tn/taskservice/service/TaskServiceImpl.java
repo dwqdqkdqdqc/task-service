@@ -10,6 +10,7 @@ import ru.sitronics.tn.taskservice.exception.BpmEngineException;
 import ru.sitronics.tn.taskservice.exception.IllegalActionException;
 import ru.sitronics.tn.taskservice.exception.ResourceNotFoundException;
 import ru.sitronics.tn.taskservice.model.Definition;
+import ru.sitronics.tn.taskservice.model.DefinitionType;
 import ru.sitronics.tn.taskservice.model.Task;
 import ru.sitronics.tn.taskservice.repository.DefinitionRepository;
 import ru.sitronics.tn.taskservice.repository.TaskRepository;
@@ -36,7 +37,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Map<String, String> getTaskTypes() {
         Map<String, String> m = new HashMap<>();
-        List<Definition> taskTypes = definitionRepository.findAllByType("TASK_TYPE");
+        List<Definition> taskTypes = definitionRepository.findAllByType(DefinitionType.TASK_TYPE.toString());
         taskTypes.forEach(definition -> m.put(definition.getCode(), definition.getDisplayValue()));
         return m;
     }
@@ -44,7 +45,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Map<String, String> getTaskStatuses() {
         Map<String, String> m = new HashMap<>();
-        List<Definition> taskTypes = definitionRepository.findAllByType("TASK_STATUS");
+        List<Definition> taskTypes = definitionRepository.findAllByType(DefinitionType.TASK_STATUS.toString());
         taskTypes.forEach(definition -> m.put(definition.getCode(), definition.getDisplayValue()));
         return m;
     }
