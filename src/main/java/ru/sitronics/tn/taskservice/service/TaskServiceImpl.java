@@ -9,18 +9,21 @@ import ru.sitronics.tn.taskservice.dto.TaskDto;
 import ru.sitronics.tn.taskservice.exception.BpmEngineException;
 import ru.sitronics.tn.taskservice.exception.IllegalActionException;
 import ru.sitronics.tn.taskservice.exception.ResourceNotFoundException;
+import ru.sitronics.tn.taskservice.model.Definition;
 import ru.sitronics.tn.taskservice.model.Task;
-import ru.sitronics.tn.taskservice.model.TaskStatus;
-import ru.sitronics.tn.taskservice.model.TaskType;
+import ru.sitronics.tn.taskservice.repository.DefinitionRepository;
 import ru.sitronics.tn.taskservice.repository.TaskRepository;
 import ru.sitronics.tn.taskservice.util.CustomRestClient;
 import ru.sitronics.tn.taskservice.util.ObjectUtils;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static ru.sitronics.tn.taskservice.model.TaskStatus.*;
+import static ru.sitronics.tn.taskservice.model.TaskStatusEnum.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,18 +31,21 @@ public class TaskServiceImpl implements TaskService {
 
     private final CustomRestClient customRestClient;
     private final TaskRepository taskRepository;
+    private final DefinitionRepository definitionRepository;
 
     @Override
-    public Map<TaskType, String> getTaskTypes() {
-        Map<TaskType, String> m = new EnumMap<>(TaskType.class);
-        Arrays.asList(TaskType.values()).forEach(el -> m.put(el, el.getDisplayValue()));
+    public Map<String, String> getTaskTypes() {
+        Map<String, String> m = new HashMap<>();
+        List<Definition> taskTypes = definitionRepository.findAllByType("TASK_TYPE");
+        taskTypes.forEach(definition -> m.put(definition.getCode(), definition.getDisplayValue()));
         return m;
     }
 
     @Override
-    public Map<TaskStatus, String> getTaskStatuses() {
-        Map<TaskStatus, String> m = new EnumMap<>(TaskStatus.class);
-        Arrays.asList(TaskStatus.values()).forEach(el -> m.put(el, el.getDisplayValue()));
+    public Map<String, String> getTaskStatuses() {
+        Map<String, String> m = new HashMap<>();
+        List<Definition> taskTypes = definitionRepository.findAllByType("TASK_STATUS");
+        taskTypes.forEach(definition -> m.put(definition.getCode(), definition.getDisplayValue()));
         return m;
     }
 
@@ -67,7 +73,7 @@ public class TaskServiceImpl implements TaskService {
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
         if (!StringUtils.hasText(task.getAssignee())) {
             task.setAssignee(userId);
-            task.setStatus(IN_PROGRESS);
+            task.setStatus(IN_PROGRESS.toString());
             taskRepository.save(task);
         } else {
             throw new IllegalActionException(String.format("Task with id %s is already assigned", taskId));
@@ -80,7 +86,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
         task.setAssignee(null);
-        task.setStatus(PENDING);
+        task.setStatus(PENDING.toString());
         taskRepository.save(task);
     }
 
@@ -106,7 +112,7 @@ public class TaskServiceImpl implements TaskService {
         String enpointUri = String.format("/task/%s/complete", task.getProcessEngineTaskId());
         ResponseEntity<Void> response = customRestClient.postJson(enpointUri, "{}", Void.class);
         if (response.getStatusCode().is2xxSuccessful()) {
-            task.setStatus(COMPLETED);
+            task.setStatus(COMPLETED.toString());
             taskRepository.save(task);
         } else {
             throw new BpmEngineException(

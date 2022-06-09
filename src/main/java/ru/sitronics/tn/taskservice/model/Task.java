@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static ru.sitronics.tn.taskservice.model.TaskStatus.PENDING;
+import static ru.sitronics.tn.taskservice.model.TaskStatusEnum.PENDING;
 
 @Entity
 @NoArgsConstructor
@@ -33,9 +33,7 @@ public class Task extends BaseEntity {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> candidateGroups;
     private String documentId;
-    @Enumerated(EnumType.STRING)
-    private TaskType type;
-    @Enumerated(EnumType.STRING)
-    private TaskStatus status = PENDING;
+    private String type;
+    private String status = PENDING.toString();
     private boolean readByAssignee = false;
 }
