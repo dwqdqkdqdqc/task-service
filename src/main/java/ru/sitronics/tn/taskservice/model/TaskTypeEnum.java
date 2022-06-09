@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum TaskStatus {
-    PENDING("Ожидает исполнения"),
-    IN_PROGRESS("В работе"),
-    COMPLETED("Выполнена");
+public enum TaskTypeEnum {
+    APPROVAL("Согласование"),
+    FAMILIARIZATION("Ознакомление");
 
     private final String displayValue;
 }

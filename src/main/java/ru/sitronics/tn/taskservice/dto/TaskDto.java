@@ -2,8 +2,6 @@ package ru.sitronics.tn.taskservice.dto;
 
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.sitronics.tn.taskservice.model.TaskStatus;
-import ru.sitronics.tn.taskservice.model.TaskType;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -29,7 +27,7 @@ public class TaskDto {
     private String taskDefinitionKey;
     private List<String> candidateGroups;
     private String documentId;
-    private TaskType type;
-    private TaskStatus status;
+    private String type;
+    private String status;
     private boolean readByAssignee = false;
 }

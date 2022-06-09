@@ -10,8 +10,6 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import ru.sitronics.tn.taskservice.dto.TaskDto;
 import ru.sitronics.tn.taskservice.model.Task;
-import ru.sitronics.tn.taskservice.model.TaskStatus;
-import ru.sitronics.tn.taskservice.model.TaskType;
 import ru.sitronics.tn.taskservice.service.TaskService;
 
 import javax.validation.Valid;
@@ -40,12 +38,12 @@ public class TaskController {
     }
 
     @GetMapping("/types")
-    public ResponseEntity<Map<TaskType, String>> getTaskTypes() {
+    public ResponseEntity<Map<String, String>> getTaskTypes() {
         return ResponseEntity.ok(taskService.getTaskTypes());
     }
 
     @GetMapping("/statuses")
-    public ResponseEntity<Map<TaskStatus, String>> getTaskStatuses() {
+    public ResponseEntity<Map<String, String>> getTaskStatuses() {
         return ResponseEntity.ok(taskService.getTaskStatuses());
     }
 
