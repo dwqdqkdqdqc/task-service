@@ -28,5 +28,5 @@ public class TaskDto {
     private String documentId;
     private String type;
     private String status;
-    private Boolean readByAssignee;
+    private boolean readByAssignee;
 }
