@@ -1,11 +1,17 @@
 package ru.sitronics.tn.taskservice.service;
 
+import io.github.perplexhub.rsql.RSQLJPASupport;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.sitronics.tn.taskservice.dto.TaskDto;
+import ru.sitronics.tn.taskservice.dto.TaskPageDto;
 import ru.sitronics.tn.taskservice.exception.BpmEngineException;
 import ru.sitronics.tn.taskservice.exception.IllegalActionException;
 import ru.sitronics.tn.taskservice.exception.ResourceNotFoundException;
@@ -28,7 +34,14 @@ import static ru.sitronics.tn.taskservice.model.TaskStatusEnum.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TaskServiceImpl implements TaskService {
+
+    @Value("${rsql.defaultSort}")
+    private String defaultSort;
+
+    @Value("${rsql.defaultPageSize}")
+    private Integer defaultPageSize;
 
     private final CustomRestClient customRestClient;
     private final TaskRepository taskRepository;
@@ -57,14 +70,52 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getTasks() {
-        return taskRepository.findAll().stream()
+    @SuppressWarnings("unchecked")
+    public TaskPageDto getTasks(String filter, Integer page, Integer size, String sort, String fields) {
+
+        //pages start from 1 for user
+        if (page == null || page < 1) {
+            log.warn("Invalid page value (page = {}). Set default page value = 0", page);
+            page = 0; //default page
+        } else --page;
+
+        if (sort == null || sort.isBlank()) {
+            log.warn("Invalid sort value (sort = {}). Set default sort value = {}", sort, defaultSort);
+            sort = defaultSort;
+        }
+        if (size == null || size <= 0) {
+            log.warn("Invalid size value (size = {}). Set default size  = {}", size, defaultPageSize);
+            size = defaultPageSize;
+        }
+
+        TaskPageDto taskPageDto = new TaskPageDto();
+        taskPageDto.setSort(sort);
+        taskPageDto.setPage(page + 1);
+        taskPageDto.setElementsOnPage(size);
+
+        Page<Task> taskPage;
+
+        if (filter == null || filter.isBlank()) {
+            taskPage = taskRepository.findAll(RSQLJPASupport.toSort(sort), PageRequest.of(page, size));
+        } else {
+            taskPageDto.setFilter(filter);
+            Specification<?> specification = RSQLJPASupport.toSpecification(filter).and(RSQLJPASupport.toSort(sort));
+            taskPage = taskRepository.findAll((Specification<Task>) specification, PageRequest.of(page, size));
+        }
+        taskPageDto.setTotalAmount(taskPage.getTotalElements());
+        taskPageDto.setPages(taskPage.getTotalPages());
+        taskPageDto.setEntity(taskPage.stream()
                 .map(task -> {
                     TaskDto taskDto = new TaskDto();
-                    BeanUtils.copyProperties(task, taskDto);
+                    if (fields == null) {
+                        ObjectUtils.convertObject(task, taskDto);
+                    } else {
+                        ObjectUtils.convertObject(task, taskDto, fields);
+                    }
                     return taskDto;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+        return taskPageDto;
     }
 
     @Override

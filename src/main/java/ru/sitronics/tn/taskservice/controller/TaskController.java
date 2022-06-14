@@ -1,19 +1,21 @@
 package ru.sitronics.tn.taskservice.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import ru.sitronics.tn.taskservice.dto.TaskDto;
+import ru.sitronics.tn.taskservice.dto.TaskPageDto;
 import ru.sitronics.tn.taskservice.model.Task;
 import ru.sitronics.tn.taskservice.service.TaskService;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -54,9 +56,14 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping
-    public ResponseEntity<List<TaskDto>> getTasks() {
-        return ResponseEntity.ok(taskService.getTasks());
+    @Operation(summary = "Returns a list of tasks and sorted/filtered based on the query parameters")
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TaskPageDto> getTasks(@RequestParam(value = "filter", required = false) String filter,
+                                                @RequestParam(value = "page", required = false) Integer page,
+                                                @RequestParam(value = "size", required = false) Integer size,
+                                                @RequestParam(value = "sort", required = false) String sort,
+                                                @RequestParam(value = "fields", required = false) String fields) {
+        return ResponseEntity.ok(taskService.getTasks(filter, page, size, sort, fields));
     }
 
     @PostMapping("/{taskId}/claim")
