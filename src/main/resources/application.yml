@@ -20,3 +20,7 @@ spring:
 #  sql.init:
 #    mode: always
 #    encoding: UTF-8
+
+rsql:
+  defaultSort: ${DEFAULT_SORT:createdAt,asc}
+  defaultPageSize: ${DEFAULT_PAGE_SIZE:10}

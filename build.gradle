@@ -4,6 +4,7 @@ buildscript {
 	ext {
 		spring = '2.6.7'
 		openapi = '1.6.8'
+		rsql = '5.0.19'
 	}
 }
 
@@ -45,9 +46,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation ('org.springframework.boot:spring-boot-starter-undertow') { exclude module: 'undertow-websockets-jsr' }
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation "io.github.perplexhub:rsql-jpa-spring-boot-starter:${rsql}"
+	implementation "org.springdoc:springdoc-openapi-ui:${openapi}"
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
-	runtimeOnly "org.springdoc:springdoc-openapi-ui:${openapi}"
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
