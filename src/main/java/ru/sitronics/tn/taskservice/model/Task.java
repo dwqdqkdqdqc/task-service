@@ -26,7 +26,6 @@ public class Task extends BaseEntity {
     private LocalDateTime due;
     private LocalDateTime followUp;
     private String description;
-    private int priority;
     private String processDefinitionId;
     private String processInstanceId;
     private String taskDefinitionKey;
@@ -35,5 +34,5 @@ public class Task extends BaseEntity {
     private String documentId;
     private String type;
     private String status = PENDING.toString();
-    private boolean readByAssignee = false;
+    private boolean readByAssignee;
 }

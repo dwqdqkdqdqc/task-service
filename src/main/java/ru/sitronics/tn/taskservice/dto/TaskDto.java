@@ -21,7 +21,6 @@ public class TaskDto {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime followUp;
     private String description;
-    private Integer priority;
     private String processDefinitionId;
     private String processInstanceId;
     private String taskDefinitionKey;
