@@ -153,12 +153,14 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalActionException(String.format("Task %s can be reassigned only by current assignee", taskId));
         }
     }
+
     @Override
     public TaskCountDto countByAssigneeAndReadByAssignee(String assignee, boolean readByAssignee){
         TaskCountDto taskCountDto = new TaskCountDto();
         taskCountDto.setCount(taskRepository.countByAssigneeAndReadByAssignee( assignee, readByAssignee));
         return taskCountDto;
     }
+    
     @Override
     @Transactional
     //TODO UserId validation?

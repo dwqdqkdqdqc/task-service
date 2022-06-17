@@ -3,7 +3,6 @@ package ru.sitronics.tn.taskservice.service;
 import ru.sitronics.tn.taskservice.dto.TaskCountDto;
 import ru.sitronics.tn.taskservice.dto.TaskDto;
 import ru.sitronics.tn.taskservice.dto.TaskPageDto;
-import ru.sitronics.tn.taskservice.model.Task;
 
 import java.util.Map;
 
@@ -17,5 +16,4 @@ public interface TaskService {
     void reassignByCurrentUser(String taskId, String currentUserId, String newUserId);
     TaskCountDto countByAssigneeAndReadByAssignee(String assignee, boolean readByAssignee);
     void completeTask(String taskId);
-//    TaskDto patchTask(String taskId,TaskDto taskDto);
 }

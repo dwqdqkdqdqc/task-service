@@ -28,6 +28,5 @@ public class TaskDto {
     private String documentId;
     private String type;
     private String status;
-    private boolean readByAssignee; // флаг -не  прочтен = false , прочтен = true / patch - который меняет тру на false
-
+    private boolean readByAssignee;
 }
