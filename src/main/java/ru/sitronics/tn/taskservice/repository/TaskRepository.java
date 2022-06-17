@@ -7,4 +7,5 @@ import ru.sitronics.tn.taskservice.model.Task;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificationExecutor<Task> {
+    Integer countByAssigneeAndReadByAssignee(String assignee, boolean readByAssignee);
 }

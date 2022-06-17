@@ -35,4 +35,5 @@ public class Task extends BaseEntity {
     private String type;
     private String status = PENDING.toString();
     private boolean readByAssignee;
+
 }

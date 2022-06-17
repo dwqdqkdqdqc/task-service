@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import ru.sitronics.tn.taskservice.dto.TaskCountDto;
 import ru.sitronics.tn.taskservice.dto.TaskDto;
 import ru.sitronics.tn.taskservice.dto.TaskPageDto;
 import ru.sitronics.tn.taskservice.exception.BpmEngineException;
@@ -68,7 +69,6 @@ public class TaskServiceImpl implements TaskService {
         Task task = ObjectUtils.convertObject(taskDto, new Task());
         return ObjectUtils.convertObject(taskRepository.save(task), new TaskDto());
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public TaskPageDto getTasks(String filter, Integer page, Integer size, String sort, String fields) {
@@ -131,7 +131,6 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalActionException(String.format("Task with id %s is already assigned", taskId));
         }
     }
-
     @Override
     @Transactional
     public void unclaimTask(String taskId) {
@@ -154,7 +153,12 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalActionException(String.format("Task %s can be reassigned only by current assignee", taskId));
         }
     }
-
+    @Override
+    public TaskCountDto countByAssigneeAndReadByAssignee(String assignee, boolean readByAssignee){
+        TaskCountDto taskCountDto = new TaskCountDto();
+        taskCountDto.setCount(taskRepository.countByAssigneeAndReadByAssignee( assignee, readByAssignee));
+        return taskCountDto;
+    }
     @Override
     @Transactional
     //TODO UserId validation?
