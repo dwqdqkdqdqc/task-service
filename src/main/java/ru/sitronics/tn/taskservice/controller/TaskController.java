@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import ru.sitronics.tn.taskservice.dto.TaskCountDto;
 import ru.sitronics.tn.taskservice.dto.TaskDto;
 import ru.sitronics.tn.taskservice.dto.TaskPageDto;
 import ru.sitronics.tn.taskservice.model.Task;
@@ -93,4 +94,10 @@ public class TaskController {
         logger.info(TASK_COMPLETED_LOG, taskId);
         return ResponseEntity.noContent().build();
     }
+    
+    @GetMapping("/count")
+    public ResponseEntity<TaskCountDto> getTaskCountDto(@RequestParam String assignee, @RequestParam boolean readByAssignee){
+        return ResponseEntity.ok(taskService.countByAssigneeAndReadByAssignee(assignee,readByAssignee));
+    }
+
 }
