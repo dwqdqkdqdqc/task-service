@@ -11,7 +11,7 @@ import ru.sitronics.tn.taskservice.exception.ProcessDocumentMappingException;
 import ru.sitronics.tn.taskservice.exception.ProcessGroupException;
 import ru.sitronics.tn.taskservice.model.Process;
 import ru.sitronics.tn.taskservice.model.ProcessGroup;
-import ru.sitronics.tn.taskservice.repository.ProcessDocumentMappingRepository;
+import ru.sitronics.tn.taskservice.repository.DocumentTypeProcessMappingRepository;
 import ru.sitronics.tn.taskservice.repository.ProcessGroupRepository;
 import ru.sitronics.tn.taskservice.util.CustomRestClient;
 import ru.sitronics.tn.taskservice.util.ObjectUtils;
@@ -26,7 +26,7 @@ import java.util.Objects;
 public class ProcessGroupServiceImpl implements ProcessGroupService {
 
     private final ProcessGroupRepository processGroupRepository;
-    private final ProcessDocumentMappingRepository processDocumentMappingRepository;
+    private final DocumentTypeProcessMappingRepository documentTypeProcessMappingRepository;
     private final CustomRestClient customRestClient;
 
     @Override
@@ -79,9 +79,9 @@ public class ProcessGroupServiceImpl implements ProcessGroupService {
     }
 
     private String getProcessKeyByDocumentType(String documentType) {
-        return processDocumentMappingRepository
+        return documentTypeProcessMappingRepository
                 .findByDocumentType(documentType)
                 .orElseThrow(() -> new ProcessDocumentMappingException(String.format("Couldn't find a process by document type: %s", documentType)))
-                .getProcessName();
+                .getProcessKey();
     }
 }

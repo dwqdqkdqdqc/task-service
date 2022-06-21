@@ -1,24 +1,18 @@
 package ru.sitronics.tn.taskservice.dto;
 
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class TaskDto {
+public class TaskOutDto {
     private Long id;
-    @NotBlank
     private String processEngineTaskId;
     private String name;
     private String assignee;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime createdInProcessEngine;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime due;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime followUp;
     private String description;
     private String processDefinitionId;
@@ -28,5 +22,5 @@ public class TaskDto {
     private String documentId;
     private String type;
     private String status;
-    private boolean readByAssignee;
+    private Boolean readByAssignee;
 }

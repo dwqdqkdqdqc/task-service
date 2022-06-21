@@ -10,16 +10,18 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import ru.sitronics.tn.taskservice.dto.TaskDto;
+import ru.sitronics.tn.taskservice.dto.TaskInDto;
+import ru.sitronics.tn.taskservice.dto.TaskOutDto;
 import ru.sitronics.tn.taskservice.dto.TaskPageDto;
-import ru.sitronics.tn.taskservice.exception.BpmEngineException;
+import ru.sitronics.tn.taskservice.exception.BpmsException;
 import ru.sitronics.tn.taskservice.exception.IllegalActionException;
 import ru.sitronics.tn.taskservice.exception.ResourceNotFoundException;
-import ru.sitronics.tn.taskservice.model.Definition;
-import ru.sitronics.tn.taskservice.model.DefinitionType;
 import ru.sitronics.tn.taskservice.model.Task;
-import ru.sitronics.tn.taskservice.repository.DefinitionRepository;
+import ru.sitronics.tn.taskservice.model.TaskStatusDict;
+import ru.sitronics.tn.taskservice.model.TaskTypeDict;
 import ru.sitronics.tn.taskservice.repository.TaskRepository;
+import ru.sitronics.tn.taskservice.repository.TaskStatusDictRepository;
+import ru.sitronics.tn.taskservice.repository.TaskTypeDictRepository;
 import ru.sitronics.tn.taskservice.util.CustomRestClient;
 import ru.sitronics.tn.taskservice.util.ObjectUtils;
 
@@ -45,28 +47,29 @@ public class TaskServiceImpl implements TaskService {
 
     private final CustomRestClient customRestClient;
     private final TaskRepository taskRepository;
-    private final DefinitionRepository definitionRepository;
+    private final TaskTypeDictRepository taskTypeDictRepository;
+    private final TaskStatusDictRepository taskStatusDictRepository;
 
     @Override
     public Map<String, String> getTaskTypes() {
         Map<String, String> m = new HashMap<>();
-        List<Definition> taskTypes = definitionRepository.findAllByType(DefinitionType.TASK_TYPE.toString());
-        taskTypes.forEach(definition -> m.put(definition.getCode(), definition.getDisplayValue()));
+        List<TaskTypeDict> taskTypes = taskTypeDictRepository.findAll();
+        taskTypes.forEach(taskTypeDict -> m.put(taskTypeDict.getCode(), taskTypeDict.getFullValue()));
         return m;
     }
 
     @Override
     public Map<String, String> getTaskStatuses() {
         Map<String, String> m = new HashMap<>();
-        List<Definition> taskTypes = definitionRepository.findAllByType(DefinitionType.TASK_STATUS.toString());
-        taskTypes.forEach(definition -> m.put(definition.getCode(), definition.getDisplayValue()));
+        List<TaskStatusDict> taskStatuses = taskStatusDictRepository.findAll();
+        taskStatuses.forEach(taskStatusDict -> m.put(taskStatusDict.getCode(), taskStatusDict.getFullValue()));
         return m;
     }
 
     @Override
-    public TaskDto createTask(TaskDto taskDto) {
-        Task task = ObjectUtils.convertObject(taskDto, new Task());
-        return ObjectUtils.convertObject(taskRepository.save(task), new TaskDto());
+    public TaskInDto createTask(TaskInDto taskInDto) {
+        Task task = ObjectUtils.convertObject(taskInDto, new Task());
+        return ObjectUtils.convertObject(taskRepository.save(task), new TaskInDto());
     }
 
     @Override
@@ -106,13 +109,13 @@ public class TaskServiceImpl implements TaskService {
         taskPageDto.setPages(taskPage.getTotalPages());
         taskPageDto.setEntity(taskPage.stream()
                 .map(task -> {
-                    TaskDto taskDto = new TaskDto();
+                    TaskOutDto taskOutDto = new TaskOutDto();
                     if (fields == null) {
-                        ObjectUtils.convertObject(task, taskDto);
+                        ObjectUtils.convertObject(task, taskOutDto);
                     } else {
-                        ObjectUtils.convertObject(task, taskDto, fields);
+                        ObjectUtils.convertObject(task, taskOutDto, fields);
                     }
-                    return taskDto;
+                    return taskOutDto;
                 })
                 .collect(Collectors.toList()));
         return taskPageDto;
@@ -167,7 +170,7 @@ public class TaskServiceImpl implements TaskService {
             task.setStatus(COMPLETED.toString());
             taskRepository.save(task);
         } else {
-            throw new BpmEngineException(
+            throw new BpmsException(
                 String.format("Couldn't complete task %s in process engine application. Application responded with code: %s",
                         task.getId(),
                         response.getStatusCodeValue()));

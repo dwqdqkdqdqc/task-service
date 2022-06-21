@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import ru.sitronics.tn.taskservice.dto.TaskDto;
+import ru.sitronics.tn.taskservice.dto.TaskInDto;
 import ru.sitronics.tn.taskservice.dto.TaskPageDto;
 import ru.sitronics.tn.taskservice.model.Task;
 import ru.sitronics.tn.taskservice.service.TaskService;
@@ -50,8 +50,8 @@ public class TaskController {
     }
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto taskDto) {
-        final TaskDto response = taskService.createTask(taskDto);
+    public ResponseEntity<TaskInDto> createTask(@Valid @RequestBody TaskInDto taskInDto) {
+        final TaskInDto response = taskService.createTask(taskInDto);
         logger.info(NEW_TASK_LOG, response.toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

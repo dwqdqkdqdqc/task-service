@@ -10,9 +10,8 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Table(name="process_group")
-public class ProcessGroup extends BaseEntity {
+public class ProcessGroup extends BaseEntityLongId {
 
     @NotNull
     private String createdBy;
@@ -23,4 +22,24 @@ public class ProcessGroup extends BaseEntity {
     @OneToMany(cascade=CascadeType.ALL)
     @JoinColumn(name = "process_group_id")
     private List<Process> processes = new ArrayList<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProcessGroup that)) return false;
+        if (!super.equals(o)) return false;
+
+        if (!createdBy.equals(that.createdBy)) return false;
+        if (!documentId.equals(that.documentId)) return false;
+        return documentType.equals(that.documentType);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + createdBy.hashCode();
+        result = 31 * result + documentId.hashCode();
+        result = 31 * result + documentType.hashCode();
+        return result;
+    }
 }
