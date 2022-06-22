@@ -21,7 +21,7 @@ spring:
     hikari:
       minimumIdle: 1
       maximumPoolSize: 2
-      data-source-properties:
+      dataSourceProperties:
         ApplicationName: "Microservice: ${spring.application.name}"
 
 #  sql.init:
