@@ -4,8 +4,6 @@ server:
 bpmn-engine-proxy:
   uri: http://${BPMN_ENGINE_PROXY_HOST:213.108.129.175}:${BPMN_ENGINE_PROXY_PORT:8090}
 
-jdbcAppName: "Microcervice: ${spring.application.name}"
-
 spring:
   application.name: task-service
   jackson:
@@ -16,12 +14,16 @@ spring:
     properties.hibernate.default_schema: task
     show-sql: true
   datasource:
-    url: jdbc:postgresql://${DB_HOST:213.108.129.175}:${DB_PORT:5432}/${DATABASE:postgres}?ApplicationName=${jdbcAppName}
+    url: jdbc:postgresql://${DB_HOST:213.108.129.175}:${DB_PORT:5432}/${DATABASE:postgres}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:transneft}
     driver-class-name: org.postgresql.Driver
     hikari:
-      minimumIdle: 2
+      minimumIdle: 1
+      maximumPoolSize: 2
+      data-source-properties:
+        ApplicationName: "Microservice: ${spring.application.name}"
+
 #  sql.init:
 #    mode: always
 #    encoding: UTF-8
