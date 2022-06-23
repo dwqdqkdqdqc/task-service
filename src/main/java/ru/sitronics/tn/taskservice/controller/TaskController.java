@@ -93,4 +93,10 @@ public class TaskController {
         logger.info(TASK_COMPLETED_LOG, taskId);
         return ResponseEntity.noContent().build();
     }
+    
+    @GetMapping("/count")
+    public ResponseEntity<TaskCountDto> getTaskCountDto(@RequestParam String assignee, @RequestParam boolean readByAssignee){
+        return ResponseEntity.ok(taskService.countByAssigneeAndReadByAssignee(assignee,readByAssignee));
+    }
+
 }

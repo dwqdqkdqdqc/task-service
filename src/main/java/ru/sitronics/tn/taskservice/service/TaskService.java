@@ -13,5 +13,6 @@ public interface TaskService {
     void claimTask(String taskId, String userId);
     void unclaimTask(String taskId);
     void reassignByCurrentUser(String taskId, String currentUserId, String newUserId);
+    TaskCountDto countByAssigneeAndReadByAssignee(String assignee, boolean readByAssignee);
     void completeTask(String taskId);
 }

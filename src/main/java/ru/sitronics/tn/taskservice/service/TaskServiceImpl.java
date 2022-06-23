@@ -71,7 +71,6 @@ public class TaskServiceImpl implements TaskService {
         Task task = ObjectUtils.convertObject(taskInDto, new Task());
         return ObjectUtils.convertObject(taskRepository.save(task), new TaskInDto());
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public TaskPageDto getTasks(String filter, Integer page, Integer size, String sort, String fields) {
@@ -134,7 +133,6 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalActionException(String.format("Task with id %s is already assigned", taskId));
         }
     }
-
     @Override
     @Transactional
     public void unclaimTask(String taskId) {
@@ -158,6 +156,13 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    @Override
+    public TaskCountDto countByAssigneeAndReadByAssignee(String assignee, boolean readByAssignee){
+        TaskCountDto taskCountDto = new TaskCountDto();
+        taskCountDto.setCount(taskRepository.countByAssigneeAndReadByAssignee( assignee, readByAssignee));
+        return taskCountDto;
+    }
+    
     @Override
     @Transactional
     //TODO UserId validation?
