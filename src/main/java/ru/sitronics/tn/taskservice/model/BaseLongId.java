@@ -5,6 +5,7 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import java.util.Objects;
@@ -15,7 +16,7 @@ import java.util.Objects;
 public abstract class BaseLongId {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
     @Override

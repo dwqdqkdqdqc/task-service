@@ -22,12 +22,12 @@ public abstract class Dictionary extends BaseEntityLongId {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Dictionary item = (Dictionary) o;
-        return super.equals(o) && Objects.equals(code, item.code)
-                && Objects.equals(shortValue, item.shortValue)
-                && Objects.equals(fullValue, item.fullValue)
-                && Objects.equals(active, item.active)
-                && Objects.equals(ord, item.ord);
+        Dictionary that = (Dictionary) o;
+        return super.equals(o) && Objects.equals(code, that.code)
+                && Objects.equals(shortValue, that.shortValue)
+                && Objects.equals(fullValue, that.fullValue)
+                && Objects.equals(active, that.active)
+                && Objects.equals(ord, that.ord);
     }
 
     @Override
