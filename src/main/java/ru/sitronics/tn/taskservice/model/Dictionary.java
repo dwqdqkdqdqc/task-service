@@ -11,7 +11,6 @@ import java.util.Objects;
 @ToString(callSuper = true)
 @MappedSuperclass
 public abstract class Dictionary extends BaseEntityLongId {
-
     protected String code;
     protected String shortValue;
     protected String fullValue;
@@ -23,11 +22,11 @@ public abstract class Dictionary extends BaseEntityLongId {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Dictionary that = (Dictionary) o;
-        return super.equals(o) && Objects.equals(code, that.code)
-                && Objects.equals(shortValue, that.shortValue)
-                && Objects.equals(fullValue, that.fullValue)
-                && Objects.equals(active, that.active)
-                && Objects.equals(ord, that.ord);
+        return super.equals(o) && Objects.equals(code, that.getCode())
+                && Objects.equals(shortValue, that.getShortValue())
+                && Objects.equals(fullValue, that.getFullValue())
+                && Objects.equals(active, that.isActive())
+                && Objects.equals(ord, that.getOrd());
     }
 
     @Override
