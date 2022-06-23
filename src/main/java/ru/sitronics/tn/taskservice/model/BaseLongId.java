@@ -14,7 +14,6 @@ import java.util.Objects;
 @ToString
 @MappedSuperclass
 public abstract class BaseLongId {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
@@ -24,7 +23,7 @@ public abstract class BaseLongId {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         BaseLongId that = (BaseLongId) o;
-        return id != null && Objects.equals(id, that.id);
+        return id != null && Objects.equals(id, that.getId();
     }
 
     @Override
