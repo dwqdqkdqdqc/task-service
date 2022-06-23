@@ -12,11 +12,8 @@ import javax.persistence.Table;
 @Data
 @Table(schema="dictionaries", name="map_doc_type_process")
 public class DocumentTypeProcessMapping extends BaseEntityLongId {
-
     private String processKey;
-    @Column(name = "doc_type")
-    private String documentType;
-    private boolean active;
+    private String docType;
 
     @Override
     public boolean equals(Object o) {
@@ -24,7 +21,6 @@ public class DocumentTypeProcessMapping extends BaseEntityLongId {
         if (!(o instanceof DocumentTypeProcessMapping that)) return false;
         if (!super.equals(o)) return false;
 
-        if (active != that.active) return false;
         if (!processKey.equals(that.processKey)) return false;
         return documentType.equals(that.documentType);
     }
