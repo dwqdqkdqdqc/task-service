@@ -13,7 +13,6 @@ import java.util.Objects;
 @ToString
 @MappedSuperclass
 public abstract class BaseEntityLongId extends BaseLongId {
-
     @CreationTimestamp
     protected Instant createdAt;
     @UpdateTimestamp
