@@ -1,4 +1,4 @@
-package ru.sitronics.tn.taskservice.model;
+package ru.sitronics.tn.taskservice.model.base;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -9,21 +9,22 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import java.util.Objects;
+import java.util.UUID;
 
 @Getter
 @ToString
 @MappedSuperclass
-public abstract class BaseLongId {
+public abstract class BaseUUID {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long id;
+    @GeneratedValue
+    protected UUID id;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        BaseLongId that = (BaseLongId) o;
-        return id != null && Objects.equals(id, that.getId();
+        BaseUUID that = (BaseUUID) o;
+        return id != null && Objects.equals(id, that.getId());
     }
 
     @Override

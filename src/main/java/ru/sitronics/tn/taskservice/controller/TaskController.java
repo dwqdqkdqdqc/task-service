@@ -10,7 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import ru.sitronics.tn.taskservice.dto.TaskCountDto;
 import ru.sitronics.tn.taskservice.dto.TaskInDto;
+import ru.sitronics.tn.taskservice.dto.TaskOutDto;
 import ru.sitronics.tn.taskservice.dto.TaskPageDto;
 import ru.sitronics.tn.taskservice.model.Task;
 import ru.sitronics.tn.taskservice.service.TaskService;
@@ -50,8 +52,8 @@ public class TaskController {
     }
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<TaskInDto> createTask(@Valid @RequestBody TaskInDto taskInDto) {
-        final TaskInDto response = taskService.createTask(taskInDto);
+    public ResponseEntity<TaskOutDto> createTask(@Valid @RequestBody TaskInDto taskInDto) {
+        final TaskOutDto response = taskService.createTask(taskInDto);
         logger.info(NEW_TASK_LOG, response.toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -99,4 +101,8 @@ public class TaskController {
         return ResponseEntity.ok(taskService.countByAssigneeAndReadByAssignee(assignee,readByAssignee));
     }
 
+    @PatchMapping("/{taskId}")
+    public ResponseEntity<TaskOutDto> updateTask(@PathVariable String taskId, @RequestBody TaskInDto taskInDto){
+        return ResponseEntity.ok(taskService.updateTask(taskId,taskInDto));
+    }
 }

@@ -2,6 +2,7 @@ package ru.sitronics.tn.taskservice.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.sitronics.tn.taskservice.model.base.BaseEntityUUID;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -10,7 +11,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import static ru.sitronics.tn.taskservice.model.TaskStatusEnum.PENDING;
 
@@ -18,7 +18,7 @@ import static ru.sitronics.tn.taskservice.model.TaskStatusEnum.PENDING;
 @NoArgsConstructor
 @Data
 @Table(name="task")
-public class Task extends BaseEntityLongId {
+public class Task extends BaseEntityUUID {
 
     @NotNull
     private String processEngineTaskId;
@@ -44,46 +44,50 @@ public class Task extends BaseEntityLongId {
         if (!(o instanceof Task task)) return false;
         if (!super.equals(o)) return false;
 
-        if (readByAssignee != task.readByAssignee) return false;
-        if (!processEngineTaskId.equals(task.processEngineTaskId)) return false;
-        if (!Objects.equals(name, task.name)) return false;
-        if (!Objects.equals(assignee, task.assignee)) return false;
-        if (!Objects.equals(createdInProcessEngine, task.createdInProcessEngine))
+        if (isReadByAssignee() != task.isReadByAssignee()) return false;
+        if (!getProcessEngineTaskId().equals(task.getProcessEngineTaskId())) return false;
+        if (getName() != null ? !getName().equals(task.getName()) : task.getName() != null) return false;
+        if (getAssignee() != null ? !getAssignee().equals(task.getAssignee()) : task.getAssignee() != null)
             return false;
-        if (!Objects.equals(due, task.due)) return false;
-        if (!Objects.equals(followUp, task.followUp)) return false;
-        if (!Objects.equals(description, task.description)) return false;
-        if (!Objects.equals(processDefinitionId, task.processDefinitionId))
+        if (getCreatedInProcessEngine() != null ? !getCreatedInProcessEngine().equals(task.getCreatedInProcessEngine()) : task.getCreatedInProcessEngine() != null)
             return false;
-        if (!Objects.equals(processInstanceId, task.processInstanceId))
+        if (getDue() != null ? !getDue().equals(task.getDue()) : task.getDue() != null) return false;
+        if (getFollowUp() != null ? !getFollowUp().equals(task.getFollowUp()) : task.getFollowUp() != null)
             return false;
-        if (!Objects.equals(taskDefinitionKey, task.taskDefinitionKey))
+        if (getDescription() != null ? !getDescription().equals(task.getDescription()) : task.getDescription() != null)
             return false;
-        if (!Objects.equals(candidateGroups, task.candidateGroups))
+        if (getProcessDefinitionId() != null ? !getProcessDefinitionId().equals(task.getProcessDefinitionId()) : task.getProcessDefinitionId() != null)
             return false;
-        if (!Objects.equals(documentId, task.documentId)) return false;
-        if (!Objects.equals(type, task.type)) return false;
-        return Objects.equals(status, task.status);
+        if (getProcessInstanceId() != null ? !getProcessInstanceId().equals(task.getProcessInstanceId()) : task.getProcessInstanceId() != null)
+            return false;
+        if (getTaskDefinitionKey() != null ? !getTaskDefinitionKey().equals(task.getTaskDefinitionKey()) : task.getTaskDefinitionKey() != null)
+            return false;
+        if (getCandidateGroups() != null ? !getCandidateGroups().equals(task.getCandidateGroups()) : task.getCandidateGroups() != null)
+            return false;
+        if (getDocumentId() != null ? !getDocumentId().equals(task.getDocumentId()) : task.getDocumentId() != null)
+            return false;
+        if (getType() != null ? !getType().equals(task.getType()) : task.getType() != null) return false;
+        return getStatus() != null ? getStatus().equals(task.getStatus()) : task.getStatus() == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + processEngineTaskId.hashCode();
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (assignee != null ? assignee.hashCode() : 0);
-        result = 31 * result + (createdInProcessEngine != null ? createdInProcessEngine.hashCode() : 0);
-        result = 31 * result + (due != null ? due.hashCode() : 0);
-        result = 31 * result + (followUp != null ? followUp.hashCode() : 0);
-        result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + (processDefinitionId != null ? processDefinitionId.hashCode() : 0);
-        result = 31 * result + (processInstanceId != null ? processInstanceId.hashCode() : 0);
-        result = 31 * result + (taskDefinitionKey != null ? taskDefinitionKey.hashCode() : 0);
-        result = 31 * result + (candidateGroups != null ? candidateGroups.hashCode() : 0);
-        result = 31 * result + (documentId != null ? documentId.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (readByAssignee ? 1 : 0);
+        result = 31 * result + getProcessEngineTaskId().hashCode();
+        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+        result = 31 * result + (getAssignee() != null ? getAssignee().hashCode() : 0);
+        result = 31 * result + (getCreatedInProcessEngine() != null ? getCreatedInProcessEngine().hashCode() : 0);
+        result = 31 * result + (getDue() != null ? getDue().hashCode() : 0);
+        result = 31 * result + (getFollowUp() != null ? getFollowUp().hashCode() : 0);
+        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
+        result = 31 * result + (getProcessDefinitionId() != null ? getProcessDefinitionId().hashCode() : 0);
+        result = 31 * result + (getProcessInstanceId() != null ? getProcessInstanceId().hashCode() : 0);
+        result = 31 * result + (getTaskDefinitionKey() != null ? getTaskDefinitionKey().hashCode() : 0);
+        result = 31 * result + (getCandidateGroups() != null ? getCandidateGroups().hashCode() : 0);
+        result = 31 * result + (getDocumentId() != null ? getDocumentId().hashCode() : 0);
+        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
+        result = 31 * result + (getStatus() != null ? getStatus().hashCode() : 0);
+        result = 31 * result + (isReadByAssignee() ? 1 : 0);
         return result;
     }
 }

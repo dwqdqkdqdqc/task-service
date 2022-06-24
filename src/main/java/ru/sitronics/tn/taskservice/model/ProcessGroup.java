@@ -1,18 +1,19 @@
 package ru.sitronics.tn.taskservice.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.sitronics.tn.taskservice.model.base.BaseEntityUUID;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
 @Data
 @Table(name="process_group")
-public class ProcessGroup extends BaseEntityLongId {
+public class ProcessGroup extends BaseEntityUUID {
 
     @NotNull
     private String createdBy;
@@ -30,19 +31,19 @@ public class ProcessGroup extends BaseEntityLongId {
         if (!(o instanceof ProcessGroup that)) return false;
         if (!super.equals(o)) return false;
 
-        if (!createdBy.equals(that.createdBy)) return false;
-        if (!documentId.equals(that.documentId)) return false;
-        if (!documentType.equals(that.documentType)) return false;
-        return Objects.equals(processes, that.processes);
+        if (!getCreatedBy().equals(that.getCreatedBy())) return false;
+        if (!getDocumentId().equals(that.getDocumentId())) return false;
+        if (!getDocumentType().equals(that.getDocumentType())) return false;
+        return getProcesses() != null ? getProcesses().equals(that.getProcesses()) : that.getProcesses() == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + createdBy.hashCode();
-        result = 31 * result + documentId.hashCode();
-        result = 31 * result + documentType.hashCode();
-        result = 31 * result + (processes != null ? processes.hashCode() : 0);
+        result = 31 * result + getCreatedBy().hashCode();
+        result = 31 * result + getDocumentId().hashCode();
+        result = 31 * result + getDocumentType().hashCode();
+        result = 31 * result + (getProcesses() != null ? getProcesses().hashCode() : 0);
         return result;
     }
 }

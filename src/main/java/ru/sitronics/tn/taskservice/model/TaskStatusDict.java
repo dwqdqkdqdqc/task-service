@@ -2,6 +2,7 @@ package ru.sitronics.tn.taskservice.model;
 
 import lombok.ToString;
 import org.hibernate.Hibernate;
+import ru.sitronics.tn.taskservice.model.base.Dictionary;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -10,16 +11,4 @@ import javax.persistence.Table;
 @Entity
 @Table(schema = "dictionaries", name = "nci_task_status")
 public class TaskStatusDict extends Dictionary {
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        TaskStatusDict that = (TaskStatusDict) o;
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

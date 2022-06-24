@@ -1,4 +1,4 @@
-package ru.sitronics.tn.taskservice.model;
+package ru.sitronics.tn.taskservice.model.base;
 
 import lombok.Getter;
 import lombok.ToString;

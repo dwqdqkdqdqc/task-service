@@ -1,18 +1,18 @@
-package ru.sitronics.tn.taskservice.model;
+package ru.sitronics.tn.taskservice.model.base;
 
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
+import javax.persistence.MappedSuperclass;
 import java.time.Instant;
 import java.util.Objects;
 
 @Getter
 @ToString
 @MappedSuperclass
-public abstract class BaseEntityLongId extends BaseLongId {
+public abstract class BaseEntityUUID extends BaseUUID {
     @CreationTimestamp
     protected Instant createdAt;
     @UpdateTimestamp
