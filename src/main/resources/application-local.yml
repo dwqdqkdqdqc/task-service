@@ -1,0 +1,9 @@
+server:
+  port: ${SERVER_PORT:8092}
+
+bpms-proxy:
+  url: http://${BPMS_PROXY_HOST:localhost}:${BPMS_PROXY_PORT:8090}
+
+logging:
+  level:
+    root: INFO
