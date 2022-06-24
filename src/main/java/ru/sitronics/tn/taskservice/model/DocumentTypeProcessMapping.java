@@ -3,7 +3,6 @@ package ru.sitronics.tn.taskservice.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -14,6 +13,7 @@ import javax.persistence.Table;
 public class DocumentTypeProcessMapping extends BaseEntityLongId {
     private String processKey;
     private String docType;
+    private boolean active;
 
     @Override
     public boolean equals(Object o) {
@@ -22,14 +22,14 @@ public class DocumentTypeProcessMapping extends BaseEntityLongId {
         if (!super.equals(o)) return false;
 
         if (!processKey.equals(that.processKey)) return false;
-        return documentType.equals(that.documentType);
+        return docType.equals(that.docType);
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + processKey.hashCode();
-        result = 31 * result + documentType.hashCode();
+        result = 31 * result + docType.hashCode();
         result = 31 * result + (active ? 1 : 0);
         return result;
     }
