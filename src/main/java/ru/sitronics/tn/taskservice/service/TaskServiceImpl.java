@@ -122,8 +122,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public void claimTask(String taskId, String userId) {
-        Task task = taskRepository.findById(UUID.fromString(taskId)).orElseThrow(
+    public void claimTask(UUID taskId, String userId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
         if (task.getStatus().equals(COMPLETED.toString())) {
             throw new IllegalActionException("Task is already completed");
@@ -139,8 +139,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public void unclaimTask(String taskId) {
-        Task task = taskRepository.findById(UUID.fromString(taskId)).orElseThrow(
+    public void unclaimTask(UUID taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
         if (task.getStatus().equals(COMPLETED.toString())) {
             throw new IllegalActionException("Task is already completed");
@@ -152,8 +152,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public void reassignByCurrentUser(String taskId, String currentUserId, String newUserId) {
-        Task task = taskRepository.findById(UUID.fromString(taskId)).orElseThrow(
+    public void reassignByCurrentUser(UUID taskId, String currentUserId, String newUserId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
         if (task.getStatus().equals(COMPLETED.toString())) {
             throw new IllegalActionException("Task is already completed");
@@ -176,8 +176,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     //TODO UserId validation?
-    public void completeTask(String taskId) {
-        Task task = taskRepository.findById(UUID.fromString(taskId)).orElseThrow(
+    public void completeTask(UUID taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
         if (task.getStatus().equals(COMPLETED.toString())) {
             throw new IllegalActionException("Task is already completed");
@@ -196,8 +196,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskOutDto updateTask(String taskId, TaskInDto taskInDto){
-        Task task = taskRepository.findById(UUID.fromString(taskId)).orElseThrow(
+    public TaskOutDto updateTask(UUID taskId, TaskInDto taskInDto){
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
         if (task.getStatus().equals(COMPLETED.toString())) {
             throw new IllegalActionException("Task is already completed");
