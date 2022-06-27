@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import ru.sitronics.tn.taskservice.dto.TaskCountDto;
 import ru.sitronics.tn.taskservice.dto.TaskInDto;
 import ru.sitronics.tn.taskservice.dto.TaskOutDto;
 import ru.sitronics.tn.taskservice.dto.TaskPageDto;
@@ -18,6 +19,7 @@ import ru.sitronics.tn.taskservice.exception.IllegalActionException;
 import ru.sitronics.tn.taskservice.exception.ResourceNotFoundException;
 import ru.sitronics.tn.taskservice.model.Task;
 import ru.sitronics.tn.taskservice.model.TaskStatusDict;
+import ru.sitronics.tn.taskservice.model.TaskStatusEnum;
 import ru.sitronics.tn.taskservice.model.TaskTypeDict;
 import ru.sitronics.tn.taskservice.repository.TaskRepository;
 import ru.sitronics.tn.taskservice.repository.TaskStatusDictRepository;
@@ -26,10 +28,7 @@ import ru.sitronics.tn.taskservice.util.CustomRestClient;
 import ru.sitronics.tn.taskservice.util.ObjectUtils;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.sitronics.tn.taskservice.model.TaskStatusEnum.*;
@@ -67,10 +66,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskInDto createTask(TaskInDto taskInDto) {
+    public TaskOutDto createTask(TaskInDto taskInDto) {
         Task task = ObjectUtils.convertObject(taskInDto, new Task());
-        return ObjectUtils.convertObject(taskRepository.save(task), new TaskInDto());
+        return ObjectUtils.convertObject(taskRepository.save(task), new TaskOutDto());
     }
+
     @Override
     @SuppressWarnings("unchecked")
     public TaskPageDto getTasks(String filter, Integer page, Integer size, String sort, String fields) {
@@ -122,9 +122,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public void claimTask(String taskId, String userId) {
-        Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(
+    public void claimTask(UUID taskId, String userId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is already completed");
+        }
         if (!StringUtils.hasText(task.getAssignee())) {
             task.setAssignee(userId);
             task.setStatus(IN_PROGRESS.toString());
@@ -133,11 +136,15 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalActionException(String.format("Task with id %s is already assigned", taskId));
         }
     }
+
     @Override
     @Transactional
-    public void unclaimTask(String taskId) {
-        Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(
+    public void unclaimTask(UUID taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is already completed");
+        }
         task.setAssignee(null);
         task.setStatus(PENDING.toString());
         taskRepository.save(task);
@@ -145,9 +152,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public void reassignByCurrentUser(String taskId, String currentUserId, String newUserId) {
-        Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(
+    public void reassignByCurrentUser(UUID taskId, String currentUserId, String newUserId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is already completed");
+        }
         if (Objects.equals(task.getAssignee(), currentUserId) && StringUtils.hasText(currentUserId)) {
             task.setAssignee(newUserId);
             taskRepository.save(task);
@@ -162,13 +172,16 @@ public class TaskServiceImpl implements TaskService {
         taskCountDto.setCount(taskRepository.countByAssigneeAndReadByAssignee( assignee, readByAssignee));
         return taskCountDto;
     }
-    
+
     @Override
     @Transactional
     //TODO UserId validation?
-    public void completeTask(String taskId) {
-        Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(
+    public void completeTask(UUID taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is already completed");
+        }
         String enpointUri = String.format("/task/%s/complete", task.getProcessEngineTaskId());
         ResponseEntity<Void> response = customRestClient.postJson(enpointUri, "{}", Void.class);
         if (response.getStatusCode().is2xxSuccessful()) {
@@ -180,5 +193,18 @@ public class TaskServiceImpl implements TaskService {
                         task.getId(),
                         response.getStatusCodeValue()));
         }
+    }
+
+    @Override
+    public TaskOutDto updateTask(UUID taskId, TaskInDto taskInDto){
+        Task task = taskRepository.findById(taskId).orElseThrow(
+                () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is already completed");
+        }
+        Task partialUpdateTask = new Task();
+        ObjectUtils.convertObject(taskInDto, partialUpdateTask);
+        Task updatedTask =  ObjectUtils.partialUpdate(task, partialUpdateTask);
+        return ObjectUtils.convertObject(taskRepository.save(updatedTask), new TaskOutDto());
     }
 }

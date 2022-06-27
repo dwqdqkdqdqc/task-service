@@ -10,13 +10,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import ru.sitronics.tn.taskservice.dto.TaskCountDto;
 import ru.sitronics.tn.taskservice.dto.TaskInDto;
+import ru.sitronics.tn.taskservice.dto.TaskOutDto;
 import ru.sitronics.tn.taskservice.dto.TaskPageDto;
 import ru.sitronics.tn.taskservice.model.Task;
 import ru.sitronics.tn.taskservice.service.TaskService;
 
 import javax.validation.Valid;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -50,8 +53,8 @@ public class TaskController {
     }
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<TaskInDto> createTask(@Valid @RequestBody TaskInDto taskInDto) {
-        final TaskInDto response = taskService.createTask(taskInDto);
+    public ResponseEntity<TaskOutDto> createTask(@Valid @RequestBody TaskInDto taskInDto) {
+        final TaskOutDto response = taskService.createTask(taskInDto);
         logger.info(NEW_TASK_LOG, response.toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -67,36 +70,45 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/claim")
-    public ResponseEntity<Void> claimTask(@PathVariable String taskId, @RequestParam String userId) {
+    public ResponseEntity<Void> claimTask(@PathVariable UUID taskId,
+                                          @RequestParam String userId) {
         taskService.claimTask(taskId, userId);
         logger.info(TASK_CLAIMED_LOG, taskId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{taskId}/unclaim")
-    public ResponseEntity<Void> unclaimTask(@PathVariable String taskId) {
+    public ResponseEntity<Void> unclaimTask(@PathVariable UUID taskId) {
         taskService.unclaimTask(taskId);
         logger.info(TASK_UNCLAIMED_LOG, taskId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{taskId}/reassign-by-current-user")
-    public ResponseEntity<Void> reassignByCurrentUser(String taskId, String currentUserId, String newUserId) {
+    public ResponseEntity<Void> reassignByCurrentUser(@PathVariable UUID taskId,
+                                                      @RequestParam String currentUserId,
+                                                      @RequestParam String newUserId) {
         taskService.reassignByCurrentUser(taskId, currentUserId, newUserId);
         logger.info(TASK_REASSIGNED_LOG, taskId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{taskId}/complete")
-    public ResponseEntity<Void> completeTask(@PathVariable String taskId) {
+    public ResponseEntity<Void> completeTask(@PathVariable UUID taskId) {
         taskService.completeTask(taskId);
         logger.info(TASK_COMPLETED_LOG, taskId);
         return ResponseEntity.noContent().build();
     }
     
     @GetMapping("/count")
-    public ResponseEntity<TaskCountDto> getTaskCountDto(@RequestParam String assignee, @RequestParam boolean readByAssignee){
+    public ResponseEntity<TaskCountDto> getTaskCountDto(@RequestParam String assignee,
+                                                        @RequestParam boolean readByAssignee){
         return ResponseEntity.ok(taskService.countByAssigneeAndReadByAssignee(assignee,readByAssignee));
     }
 
+    @PatchMapping("/{taskId}")
+    public ResponseEntity<TaskOutDto> updateTask(@PathVariable UUID taskId,
+                                                 @RequestBody TaskInDto taskInDto){
+        return ResponseEntity.ok(taskService.updateTask(taskId,taskInDto));
+    }
 }

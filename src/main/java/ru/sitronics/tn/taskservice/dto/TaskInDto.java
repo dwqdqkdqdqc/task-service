@@ -6,10 +6,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class TaskInDto {
-    private Long id;
+    private UUID id;
     @NotBlank
     private String processEngineTaskId;
     private String name;
