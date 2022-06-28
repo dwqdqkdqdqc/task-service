@@ -13,7 +13,7 @@ spring:
     default-property-inclusion: NON_NULL
   jpa:
     open-in-view: false
-    hibernate.ddl-auto: validate
+    hibernate.ddl-auto: update
     show-sql: true
     properties:
       hibernate:

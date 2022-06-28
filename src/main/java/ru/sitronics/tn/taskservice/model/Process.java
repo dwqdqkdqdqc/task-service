@@ -7,18 +7,22 @@ import ru.sitronics.tn.taskservice.model.base.BaseEntityUUID;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
 @Data
-@Table(name="process")
+@Table(name = "process")
 public class Process extends BaseEntityUUID {
 
     @NotNull
     private String processInstanceId;
+
     private String definitionId;
-    @NotNull
+
     private String documentId;
+
+    private String contractId;
     @NotNull
     private String documentType;
 
@@ -32,7 +36,9 @@ public class Process extends BaseEntityUUID {
         if (getDefinitionId() != null ? !getDefinitionId().equals(process.getDefinitionId()) : process.getDefinitionId() != null)
             return false;
         if (!getDocumentId().equals(process.getDocumentId())) return false;
-        return getDocumentType().equals(process.getDocumentType());
+        if (!getContractId().equals(process.getContractId())) return false;
+        return getContractId().equals(process.getContractId());
+
     }
 
     @Override
@@ -42,6 +48,7 @@ public class Process extends BaseEntityUUID {
         result = 31 * result + (getDefinitionId() != null ? getDefinitionId().hashCode() : 0);
         result = 31 * result + getDocumentId().hashCode();
         result = 31 * result + getDocumentType().hashCode();
+        result = 31 * result + getContractId().hashCode();
         return result;
     }
 }
