@@ -13,7 +13,8 @@ import java.util.Objects;
 @NoArgsConstructor
 @Data
 @Table(schema="dictionaries", name="map_doc_type_process")
-public class DocumentTypeProcessMapping extends BaseEntityLongId {
+public class
+DocumentTypeProcessMapping extends BaseEntityLongId {
     private String processKey;
     @Column(name = "doc_type")
     private String documentType;

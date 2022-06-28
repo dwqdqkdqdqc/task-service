@@ -12,6 +12,8 @@ public class ProcessGroupDto {
     private String createdBy;
     @NotBlank
     private String documentId;
+
+    private String contractId;
     @NotBlank
     private String documentType;
 }

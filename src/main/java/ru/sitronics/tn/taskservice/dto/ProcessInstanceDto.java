@@ -6,4 +6,5 @@ import lombok.Data;
 public class ProcessInstanceDto {
     private String id;
     private String definitionId;
+    private String contractId;
 }
