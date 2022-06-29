@@ -11,24 +11,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.sitronics.tn.taskservice.dto.TaskCountDto;
-import ru.sitronics.tn.taskservice.dto.TaskDto;
+import ru.sitronics.tn.taskservice.dto.TaskInDto;
+import ru.sitronics.tn.taskservice.dto.TaskOutDto;
 import ru.sitronics.tn.taskservice.dto.TaskPageDto;
-import ru.sitronics.tn.taskservice.exception.BpmEngineException;
+import ru.sitronics.tn.taskservice.exception.BpmsException;
 import ru.sitronics.tn.taskservice.exception.IllegalActionException;
 import ru.sitronics.tn.taskservice.exception.ResourceNotFoundException;
-import ru.sitronics.tn.taskservice.model.Definition;
-import ru.sitronics.tn.taskservice.model.DefinitionType;
 import ru.sitronics.tn.taskservice.model.Task;
-import ru.sitronics.tn.taskservice.repository.DefinitionRepository;
+import ru.sitronics.tn.taskservice.model.TaskStatusDict;
+import ru.sitronics.tn.taskservice.model.TaskStatusEnum;
+import ru.sitronics.tn.taskservice.model.TaskTypeDict;
 import ru.sitronics.tn.taskservice.repository.TaskRepository;
+import ru.sitronics.tn.taskservice.repository.TaskStatusDictRepository;
+import ru.sitronics.tn.taskservice.repository.TaskTypeDictRepository;
 import ru.sitronics.tn.taskservice.util.CustomRestClient;
 import ru.sitronics.tn.taskservice.util.ObjectUtils;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.sitronics.tn.taskservice.model.TaskStatusEnum.*;
@@ -46,29 +46,31 @@ public class TaskServiceImpl implements TaskService {
 
     private final CustomRestClient customRestClient;
     private final TaskRepository taskRepository;
-    private final DefinitionRepository definitionRepository;
+    private final TaskTypeDictRepository taskTypeDictRepository;
+    private final TaskStatusDictRepository taskStatusDictRepository;
 
     @Override
     public Map<String, String> getTaskTypes() {
         Map<String, String> m = new HashMap<>();
-        List<Definition> taskTypes = definitionRepository.findAllByType(DefinitionType.TASK_TYPE.toString());
-        taskTypes.forEach(definition -> m.put(definition.getCode(), definition.getDisplayValue()));
+        List<TaskTypeDict> taskTypes = taskTypeDictRepository.findAll();
+        taskTypes.forEach(taskTypeDict -> m.put(taskTypeDict.getCode(), taskTypeDict.getFullValue()));
         return m;
     }
 
     @Override
     public Map<String, String> getTaskStatuses() {
         Map<String, String> m = new HashMap<>();
-        List<Definition> taskTypes = definitionRepository.findAllByType(DefinitionType.TASK_STATUS.toString());
-        taskTypes.forEach(definition -> m.put(definition.getCode(), definition.getDisplayValue()));
+        List<TaskStatusDict> taskStatuses = taskStatusDictRepository.findAll();
+        taskStatuses.forEach(taskStatusDict -> m.put(taskStatusDict.getCode(), taskStatusDict.getFullValue()));
         return m;
     }
 
     @Override
-    public TaskDto createTask(TaskDto taskDto) {
-        Task task = ObjectUtils.convertObject(taskDto, new Task());
-        return ObjectUtils.convertObject(taskRepository.save(task), new TaskDto());
+    public TaskOutDto createTask(TaskInDto taskInDto) {
+        Task task = ObjectUtils.convertObject(taskInDto, new Task());
+        return ObjectUtils.convertObject(taskRepository.save(task), new TaskOutDto());
     }
+
     @Override
     @SuppressWarnings("unchecked")
     public TaskPageDto getTasks(String filter, Integer page, Integer size, String sort, String fields) {
@@ -106,13 +108,13 @@ public class TaskServiceImpl implements TaskService {
         taskPageDto.setPages(taskPage.getTotalPages());
         taskPageDto.setEntity(taskPage.stream()
                 .map(task -> {
-                    TaskDto taskDto = new TaskDto();
+                    TaskOutDto taskOutDto = new TaskOutDto();
                     if (fields == null) {
-                        ObjectUtils.convertObject(task, taskDto);
+                        ObjectUtils.convertObject(task, taskOutDto);
                     } else {
-                        ObjectUtils.convertObject(task, taskDto, fields);
+                        ObjectUtils.convertObject(task, taskOutDto, fields);
                     }
-                    return taskDto;
+                    return taskOutDto;
                 })
                 .collect(Collectors.toList()));
         return taskPageDto;
@@ -120,9 +122,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public void claimTask(String taskId, String userId) {
-        Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(
+    public void claimTask(UUID taskId, String userId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is already completed");
+        }
         if (!StringUtils.hasText(task.getAssignee())) {
             task.setAssignee(userId);
             task.setStatus(IN_PROGRESS.toString());
@@ -131,11 +136,15 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalActionException(String.format("Task with id %s is already assigned", taskId));
         }
     }
+
     @Override
     @Transactional
-    public void unclaimTask(String taskId) {
-        Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(
+    public void unclaimTask(UUID taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is already completed");
+        }
         task.setAssignee(null);
         task.setStatus(PENDING.toString());
         taskRepository.save(task);
@@ -143,9 +152,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public void reassignByCurrentUser(String taskId, String currentUserId, String newUserId) {
-        Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(
+    public void reassignByCurrentUser(UUID taskId, String currentUserId, String newUserId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is already completed");
+        }
         if (Objects.equals(task.getAssignee(), currentUserId) && StringUtils.hasText(currentUserId)) {
             task.setAssignee(newUserId);
             taskRepository.save(task);
@@ -160,23 +172,39 @@ public class TaskServiceImpl implements TaskService {
         taskCountDto.setCount(taskRepository.countByAssigneeAndReadByAssignee( assignee, readByAssignee));
         return taskCountDto;
     }
-    
+
     @Override
     @Transactional
     //TODO UserId validation?
-    public void completeTask(String taskId) {
-        Task task = taskRepository.findById(Long.valueOf(taskId)).orElseThrow(
+    public void completeTask(UUID taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is already completed");
+        }
         String enpointUri = String.format("/task/%s/complete", task.getProcessEngineTaskId());
         ResponseEntity<Void> response = customRestClient.postJson(enpointUri, "{}", Void.class);
         if (response.getStatusCode().is2xxSuccessful()) {
             task.setStatus(COMPLETED.toString());
             taskRepository.save(task);
         } else {
-            throw new BpmEngineException(
+            throw new BpmsException(
                 String.format("Couldn't complete task %s in process engine application. Application responded with code: %s",
                         task.getId(),
                         response.getStatusCodeValue()));
         }
+    }
+
+    @Override
+    public TaskOutDto updateTask(UUID taskId, TaskInDto taskInDto){
+        Task task = taskRepository.findById(taskId).orElseThrow(
+                () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is already completed");
+        }
+        Task partialUpdateTask = new Task();
+        ObjectUtils.convertObject(taskInDto, partialUpdateTask);
+        Task updatedTask =  ObjectUtils.partialUpdate(task, partialUpdateTask);
+        return ObjectUtils.convertObject(taskRepository.save(updatedTask), new TaskOutDto());
     }
 }

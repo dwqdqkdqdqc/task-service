@@ -22,13 +22,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CustomRestClient {
-    @Value("${bpmn-engine-proxy.uri}")
-    private String bpmnEngineProxyUri;
+    @Value("${bpms-proxy.url}")
+    private String bpmsProxyUrl;
     private final RestTemplate restTemplate;
 
     public <T> List<T> getList(String endPointUri, Class<T[]> responseClass) {
         try {
-            String url = bpmnEngineProxyUri + endPointUri;
+            String url = bpmsProxyUrl + endPointUri;
             T[] array = restTemplate.getForObject(url, responseClass);
             log.info("URL: " + url);
             if (array == null) {
@@ -42,7 +42,7 @@ public class CustomRestClient {
 
     public <T> ResponseEntity<T> post(String endPointUri, Class<T> responseClass, MediaType mediaType) {
         try {
-            String url = bpmnEngineProxyUri + endPointUri;
+            String url = bpmsProxyUrl + endPointUri;
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             RequestEntity<Object> requestEntity = new RequestEntity<>(headers, HttpMethod.POST, URI.create(url));
@@ -67,7 +67,7 @@ public class CustomRestClient {
 
     private <T> ResponseEntity<T> post(String endPointUri, Object requestBody, Class<T> responseClass, MediaType mediaType) {
         try {
-            String url = bpmnEngineProxyUri + endPointUri;
+            String url = bpmsProxyUrl + endPointUri;
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(mediaType);
             RequestEntity<Object> requestEntity = new RequestEntity<>(requestBody, headers, HttpMethod.POST, URI.create(url));
