@@ -23,6 +23,7 @@ public class TaskInDto {
     private LocalDateTime followUp;
     private String description;
     private String processDefinitionId;
+    private String executionId;
     private String processInstanceId;
     private String taskDefinitionKey;
     private List<String> candidateGroups;
@@ -31,4 +32,5 @@ public class TaskInDto {
     private String status;
     private boolean readByAssignee;
     private String contractId;
+    private String validationProcessKey;
 }

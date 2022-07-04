@@ -7,11 +7,9 @@ import ru.sitronics.tn.taskservice.dto.ProcessGroupDto;
 import ru.sitronics.tn.taskservice.dto.ProcessInstanceDto;
 import ru.sitronics.tn.taskservice.dto.StartProcessInstanceDto;
 import ru.sitronics.tn.taskservice.dto.VariableValueDto;
-import ru.sitronics.tn.taskservice.exception.ProcessDocumentMappingException;
 import ru.sitronics.tn.taskservice.exception.ProcessGroupException;
 import ru.sitronics.tn.taskservice.model.Process;
 import ru.sitronics.tn.taskservice.model.ProcessGroup;
-import ru.sitronics.tn.taskservice.repository.DocumentTypeProcessMappingRepository;
 import ru.sitronics.tn.taskservice.repository.ProcessGroupRepository;
 import ru.sitronics.tn.taskservice.util.CustomRestClient;
 import ru.sitronics.tn.taskservice.util.ObjectUtils;
@@ -26,14 +24,15 @@ import java.util.Objects;
 public class ProcessGroupServiceImpl implements ProcessGroupService {
 
     private final ProcessGroupRepository processGroupRepository;
-    private final DocumentTypeProcessMappingRepository documentTypeProcessMappingRepository;
+    private final DocumentTypeProcessMappingService documentTypeProcessMappingService;
     private final CustomRestClient customRestClient;
 
     @Override
     @Transactional
     public ProcessGroupDto createProcessGroup(ProcessGroupDto processGroupDto) {
 
-        String processKey = getProcessKeyByDocumentType(processGroupDto.getDocumentType());
+        String processKey = documentTypeProcessMappingService
+                .getProcessKeyByDocumentType(processGroupDto.getDocumentType());
         String endPointUri = String.format("/process-definition/key/%s/start", processKey);
         StartProcessInstanceDto startProcessInstanceDto = new StartProcessInstanceDto();
 
@@ -78,10 +77,15 @@ public class ProcessGroupServiceImpl implements ProcessGroupService {
         }
     }
 
-    private String getProcessKeyByDocumentType(String documentType) {
-        return documentTypeProcessMappingRepository
-                .findByDocumentType(documentType)
-                .orElseThrow(() -> new ProcessDocumentMappingException(String.format("Couldn't find a process by document type: %s", documentType)))
-                .getProcessKey();
+    @Transactional
+    public ProcessGroup save(ProcessGroup processGroup) {
+        return processGroupRepository.save(processGroup);
+    }
+
+    //TODO Find unique constraint for ProcessGroup
+    public ProcessGroup getProcessGroupByDocumentId(String documentId) {
+        return processGroupRepository
+                .findByDocumentId(documentId)
+                .orElseThrow(() -> new ProcessGroupException(String.format("ProcessGroup is not found by documentId: %s", documentId)));
     }
 }
