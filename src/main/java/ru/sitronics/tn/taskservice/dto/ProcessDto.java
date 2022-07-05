@@ -11,4 +11,6 @@ public class ProcessDto {
     @NotBlank
     private String processInstanceId;
     private String definitionId;
+    private String documentId;
+    private String contractId;
 }

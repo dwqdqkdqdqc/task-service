@@ -29,6 +29,7 @@ public class Task extends BaseEntityUUID {
     private LocalDateTime followUp;
     private String description;
     private String processDefinitionId;
+    private String executionId;
     private String processInstanceId;
     private String taskDefinitionKey;
     @ElementCollection(fetch = FetchType.EAGER)
@@ -37,6 +38,7 @@ public class Task extends BaseEntityUUID {
     private String type;
     private String status = PENDING.toString();
     private boolean readByAssignee;
+    private String validationProcessKey;
 
     @Override
     public boolean equals(Object o) {
@@ -67,7 +69,8 @@ public class Task extends BaseEntityUUID {
         if (getDocumentId() != null ? !getDocumentId().equals(task.getDocumentId()) : task.getDocumentId() != null)
             return false;
         if (getType() != null ? !getType().equals(task.getType()) : task.getType() != null) return false;
-        return getStatus() != null ? getStatus().equals(task.getStatus()) : task.getStatus() == null;
+        if (getStatus() != null ? !getStatus().equals(task.getStatus()) : task.getStatus() != null) return false;
+        return getValidationProcessKey() != null ? getValidationProcessKey().equals(task.getValidationProcessKey()) : task.getValidationProcessKey() == null;
     }
 
     @Override
@@ -88,6 +91,7 @@ public class Task extends BaseEntityUUID {
         result = 31 * result + (getType() != null ? getType().hashCode() : 0);
         result = 31 * result + (getStatus() != null ? getStatus().hashCode() : 0);
         result = 31 * result + (isReadByAssignee() ? 1 : 0);
+        result = 31 * result + (getValidationProcessKey() != null ? getValidationProcessKey().hashCode() : 0);
         return result;
     }
 }

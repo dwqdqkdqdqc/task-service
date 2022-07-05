@@ -8,7 +8,7 @@ spring:
       minimumIdle: 1
       maximumPoolSize: 2
       dataSourceProperties:
-        ApplicationName: "Microservice: ${spring.application.name}"
+        ApplicationName: "Microservice: ${spring.application.name} (${USERNAME})"
   jpa:
     properties:
       hibernate:
