@@ -141,6 +141,7 @@ public class TaskServiceImpl implements TaskService {
         }
         task.setAssignee(null);
         task.setStatus(PENDING.toString());
+        task.setReadByAssignee(false);
         taskRepository.save(task);
     }
 
@@ -154,6 +155,7 @@ public class TaskServiceImpl implements TaskService {
         }
         if (Objects.equals(task.getAssignee(), currentUserId) && StringUtils.hasText(currentUserId)) {
             task.setAssignee(newUserId);
+            task.setReadByAssignee(false);
             taskRepository.save(task);
         } else {
             throw new IllegalActionException(String.format("Task %s can be reassigned only by current assignee", taskId));
