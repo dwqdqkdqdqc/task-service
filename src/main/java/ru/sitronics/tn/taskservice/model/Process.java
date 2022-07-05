@@ -7,7 +7,6 @@ import ru.sitronics.tn.taskservice.model.base.BaseEntityUUID;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
