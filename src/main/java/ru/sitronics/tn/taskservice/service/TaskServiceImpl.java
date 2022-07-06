@@ -210,7 +210,15 @@ public class TaskServiceImpl implements TaskService {
                 } catch (NullPointerException e) {
                     throw new TaskException("Validation process instance is null", e);
                 }
-                ProcessGroup processGroup = processGroupService.getProcessGroupByDocumentId(task.getDocumentId());
+                //TODO Add unique ID for Process and ProcessGroup correlation
+
+//                ProcessGroup processGroup = processGroupService.getProcessGroupByDocumentId(task.getDocumentId());
+//                process.setDocumentId(processGroup.getDocumentId());
+//                process.setDocumentType(processGroup.getDocumentType());
+//                processGroup.getProcesses().add(process);
+//                processGroupService.save(processGroup);
+
+                ProcessGroup processGroup = new ProcessGroup();
                 process.setDocumentId(processGroup.getDocumentId());
                 process.setDocumentType(processGroup.getDocumentType());
                 processGroup.getProcesses().add(process);
