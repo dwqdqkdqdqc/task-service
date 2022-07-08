@@ -3,6 +3,7 @@ package ru.sitronics.tn.taskservice.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -12,8 +13,7 @@ public class ProcessGroupDto {
     private String createdBy;
     @NotBlank
     private String documentId;
-
-    private String contractId;
     @NotBlank
     private String documentType;
+    private Map<String, VariableValueDto> variables;
 }

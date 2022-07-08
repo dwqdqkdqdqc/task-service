@@ -31,6 +31,7 @@ public class TaskInDto {
     private String type;
     private String status;
     private boolean readByAssignee;
-    private String contractId;
     private String validationProcessKey;
+    @NotBlank
+    private String processGroupId;
 }

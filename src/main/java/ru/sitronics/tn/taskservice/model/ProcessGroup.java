@@ -4,10 +4,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.sitronics.tn.taskservice.model.base.BaseEntityUUID;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -20,10 +19,9 @@ public class ProcessGroup extends BaseEntityUUID {
     @NotNull
     private String documentId;
     @NotNull
-    private String documentType;
-    @OneToMany(cascade=CascadeType.ALL)
-    @JoinColumn(name = "process_group_id")
-    private List<Process> processes = new ArrayList<>();
+    private String documentType;  //TODO Use doc_type or process_key?
+    private String status = ProcessGroupStatusEnum.IN_PROGRESS.toString();
+    private String errorMessage;
 
     @Override
     public boolean equals(Object o) {
@@ -34,7 +32,8 @@ public class ProcessGroup extends BaseEntityUUID {
         if (!getCreatedBy().equals(that.getCreatedBy())) return false;
         if (!getDocumentId().equals(that.getDocumentId())) return false;
         if (!getDocumentType().equals(that.getDocumentType())) return false;
-        return getProcesses() != null ? getProcesses().equals(that.getProcesses()) : that.getProcesses() == null;
+        if (getStatus() != null ? !getStatus().equals(that.getStatus()) : that.getStatus() != null) return false;
+        return getErrorMessage() != null ? getErrorMessage().equals(that.getErrorMessage()) : that.getErrorMessage() == null;
     }
 
     @Override
@@ -43,7 +42,8 @@ public class ProcessGroup extends BaseEntityUUID {
         result = 31 * result + getCreatedBy().hashCode();
         result = 31 * result + getDocumentId().hashCode();
         result = 31 * result + getDocumentType().hashCode();
-        result = 31 * result + (getProcesses() != null ? getProcesses().hashCode() : 0);
+        result = 31 * result + (getStatus() != null ? getStatus().hashCode() : 0);
+        result = 31 * result + (getErrorMessage() != null ? getErrorMessage().hashCode() : 0);
         return result;
     }
 }

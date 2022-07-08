@@ -4,10 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.sitronics.tn.taskservice.model.ProcessGroup;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface ProcessGroupRepository extends JpaRepository<ProcessGroup, UUID> {
-    Optional<ProcessGroup> findByDocumentId(String documentId);
 }

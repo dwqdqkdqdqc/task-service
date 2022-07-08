@@ -24,5 +24,5 @@ public class TaskOutDto {
     private String type;
     private String status;
     private Boolean readByAssignee;
-    private String contractId;
+    private String processGroupId;
 }

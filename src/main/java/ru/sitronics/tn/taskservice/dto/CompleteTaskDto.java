@@ -5,8 +5,6 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class ProcessInstanceDto {
-    private String id;
-    private String definitionId;
+public class CompleteTaskDto {
     private Map<String, VariableValueDto> variables;
 }

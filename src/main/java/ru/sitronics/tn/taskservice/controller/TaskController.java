@@ -10,10 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import ru.sitronics.tn.taskservice.dto.TaskCountDto;
-import ru.sitronics.tn.taskservice.dto.TaskInDto;
-import ru.sitronics.tn.taskservice.dto.TaskOutDto;
-import ru.sitronics.tn.taskservice.dto.TaskPageDto;
+import ru.sitronics.tn.taskservice.dto.*;
 import ru.sitronics.tn.taskservice.model.Task;
 import ru.sitronics.tn.taskservice.service.TaskService;
 
@@ -94,8 +91,8 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/complete")
-    public ResponseEntity<Void> completeTask(@PathVariable UUID taskId) {
-        taskService.completeTask(taskId);
+    public ResponseEntity<Void> completeTask(@PathVariable UUID taskId, @RequestBody CompleteTaskDto completeTaskDto) {
+        taskService.completeTask(taskId, completeTaskDto);
         logger.info(TASK_COMPLETED_LOG, taskId);
         return ResponseEntity.noContent().build();
     }
