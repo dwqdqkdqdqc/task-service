@@ -20,7 +20,7 @@ import ru.sitronics.tn.taskservice.model.TaskTypeDict;
 import ru.sitronics.tn.taskservice.repository.TaskRepository;
 import ru.sitronics.tn.taskservice.repository.TaskStatusDictRepository;
 import ru.sitronics.tn.taskservice.repository.TaskTypeDictRepository;
-import ru.sitronics.tn.taskservice.util.BpmValidationUtil;
+import ru.sitronics.tn.taskservice.validation.BpmValidation;
 import ru.sitronics.tn.taskservice.util.CustomRestClient;
 import ru.sitronics.tn.taskservice.util.ObjectUtils;
 
@@ -45,7 +45,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskTypeDictRepository taskTypeDictRepository;
     private final TaskStatusDictRepository taskStatusDictRepository;
-    private final BpmValidationUtil bpmValidationUtil;
+    private final BpmValidation bpmValidation;
 
     @Override
     public Map<String, String> getTaskTypes() {
@@ -182,12 +182,11 @@ public class TaskServiceImpl implements TaskService {
         if (task.getStatus().equals(COMPLETED.toString())) {
             throw new IllegalActionException("Task is already completed");
         }
-        if (!task.getValidationProcessKey().isBlank()
-                || task.getValidationProcessKey() != null) {
-            bpmValidationUtil.validateTaskCompletion(task, completeTaskDto);
+        if (!task.getValidationProcessKey().isBlank()) {
+            bpmValidation.validateTaskCompletion(task, completeTaskDto, task.getValidationProcessKey());
         }
-        String enpointUri = String.format("/task/%s/complete", task.getProcessEngineTaskId());
-        ResponseEntity<Void> response = customRestClient.postJson(enpointUri, completeTaskDto, Void.class);
+        String endPointUri = String.format("/task/%s/complete", task.getProcessEngineTaskId());
+        ResponseEntity<Void> response = customRestClient.postJson(endPointUri, completeTaskDto, Void.class);
         if (response.getStatusCode().is2xxSuccessful()) {
             task.setStatus(COMPLETED.toString());
             taskRepository.save(task);

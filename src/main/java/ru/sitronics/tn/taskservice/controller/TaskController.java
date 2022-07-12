@@ -26,11 +26,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class TaskController {
 
     private static final Logger logger = LoggerFactory.getLogger(Task.class);
-    private static final String NEW_TASK_LOG = "New task was created id:{}";
-    private static final String TASK_CLAIMED_LOG = "Task was claimed id:{}";
-    private static final String TASK_UNCLAIMED_LOG = "Task was unclaimed id:{}";
-    private static final String TASK_REASSIGNED_LOG = "Task was reassigned id:{}";
-    private static final String TASK_COMPLETED_LOG = "Task was completed id:{}";
+    private static final String NEW_TASK_LOG = "New task was created id: {}";
+    private static final String TASK_CLAIMED_LOG = "Task was claimed id: {}";
+    private static final String TASK_UNCLAIMED_LOG = "Task was unclaimed id: {}";
+    private static final String TASK_REASSIGNED_LOG = "Task was reassigned id: {}";
+    private static final String TASK_COMPLETED_LOG = "Task was completed id: {}";
 
     private final TaskService taskService;
 
