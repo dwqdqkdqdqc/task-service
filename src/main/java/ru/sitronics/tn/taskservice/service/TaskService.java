@@ -1,9 +1,6 @@
 package ru.sitronics.tn.taskservice.service;
 
-import ru.sitronics.tn.taskservice.dto.TaskCountDto;
-import ru.sitronics.tn.taskservice.dto.TaskInDto;
-import ru.sitronics.tn.taskservice.dto.TaskOutDto;
-import ru.sitronics.tn.taskservice.dto.TaskPageDto;
+import ru.sitronics.tn.taskservice.dto.*;
 
 import java.util.Map;
 import java.util.UUID;
@@ -17,6 +14,6 @@ public interface TaskService {
     void unclaimTask(UUID taskId);
     void reassignByCurrentUser(UUID taskId, String currentUserId, String newUserId);
     TaskCountDto countByAssigneeAndReadByAssignee(String assignee, boolean readByAssignee);
-    void completeTask(UUID taskId);
+    void completeTask(UUID taskId, CompleteTaskDto completeTaskDto);
     TaskOutDto updateTask(UUID taskId,TaskInDto taskDto);
 }

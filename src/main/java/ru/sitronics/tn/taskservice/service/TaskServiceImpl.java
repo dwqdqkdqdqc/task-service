@@ -11,12 +11,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.sitronics.tn.taskservice.dto.*;
-import ru.sitronics.tn.taskservice.exception.*;
-import ru.sitronics.tn.taskservice.model.*;
-import ru.sitronics.tn.taskservice.model.Process;
+import ru.sitronics.tn.taskservice.exception.BpmsException;
+import ru.sitronics.tn.taskservice.exception.IllegalActionException;
+import ru.sitronics.tn.taskservice.exception.ResourceNotFoundException;
+import ru.sitronics.tn.taskservice.model.Task;
+import ru.sitronics.tn.taskservice.model.TaskStatusDict;
+import ru.sitronics.tn.taskservice.model.TaskTypeDict;
 import ru.sitronics.tn.taskservice.repository.TaskRepository;
 import ru.sitronics.tn.taskservice.repository.TaskStatusDictRepository;
 import ru.sitronics.tn.taskservice.repository.TaskTypeDictRepository;
+import ru.sitronics.tn.taskservice.validation.BpmValidation;
 import ru.sitronics.tn.taskservice.util.CustomRestClient;
 import ru.sitronics.tn.taskservice.util.ObjectUtils;
 
@@ -41,7 +45,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskTypeDictRepository taskTypeDictRepository;
     private final TaskStatusDictRepository taskStatusDictRepository;
-    private final ProcessGroupService processGroupService;
+    private final BpmValidation bpmValidation;
 
     @Override
     public Map<String, String> getTaskTypes() {
@@ -172,66 +176,17 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     //TODO UserId validation?
-    public void completeTask(UUID taskId) {
+    public void completeTask(UUID taskId, CompleteTaskDto completeTaskDto) {
         Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
         if (task.getStatus().equals(COMPLETED.toString())) {
             throw new IllegalActionException("Task is already completed");
         }
         if (!task.getValidationProcessKey().isBlank()) {
-            String endPointUri = String.format("/process-definition/key/%s/start", task.getValidationProcessKey());
-            StartProcessInstanceDto startProcessInstanceDto = new StartProcessInstanceDto();
-
-            VariableValueDto documentIdVariable = new VariableValueDto();
-            documentIdVariable.setType("String");
-            documentIdVariable.setValue(task.getDocumentId());
-
-            VariableValueDto startedByIdVariable = new VariableValueDto();
-            startedByIdVariable.setType("String");
-            startedByIdVariable.setValue(task.getAssignee()); //TODO Assignee?
-
-            Map<String, VariableValueDto> variableValueDtoMap = new HashMap<>();
-
-            variableValueDtoMap.put("documentId", documentIdVariable);
-            variableValueDtoMap.put("startedBy", startedByIdVariable);
-
-            startProcessInstanceDto.setVariables(variableValueDtoMap);
-            startProcessInstanceDto.setWithVariablesInReturn(true);
-
-            ResponseEntity<ProcessInstanceDto> processEngineResponse =
-                    customRestClient.postJson(endPointUri, startProcessInstanceDto, ProcessInstanceDto.class);
-
-            if(processEngineResponse.getStatusCode().is2xxSuccessful()) {
-                ru.sitronics.tn.taskservice.model.Process process = new Process();
-                try {
-                    ProcessInstanceDto processInstanceDto = Objects.requireNonNull(processEngineResponse.getBody());
-                    process.setProcessInstanceId(processInstanceDto.getId());
-                    process.setDefinitionId(processEngineResponse.getBody().getDefinitionId());
-                } catch (NullPointerException e) {
-                    throw new TaskException("Validation process instance is null", e);
-                }
-                ProcessGroup processGroup = processGroupService.getProcessGroupByDocumentId(task.getDocumentId());
-                process.setDocumentId(processGroup.getDocumentId());
-                process.setDocumentType(processGroup.getDocumentType());
-                processGroup.getProcesses().add(process);
-                processGroupService.save(processGroup);
-
-                //TODO NullPointerException check required
-
-                String validationResult = Objects.requireNonNull(processEngineResponse
-                        .getBody().getVariables().get("validationResult").getValue().toString());
-                String validationMessage = Objects.requireNonNull(processEngineResponse
-                        .getBody().getVariables().get("validationMessage").getValue().toString());
-
-                if (Integer.parseInt(validationResult) < 0) {
-                    throw new TaskValidationException(validationMessage);
-                }
-            } else {
-                throw new TaskException("Validation process start was unsuccessful");
-            }
+            bpmValidation.validateTaskCompletion(task, completeTaskDto, task.getValidationProcessKey());
         }
-        String enpointUri = String.format("/task/%s/complete", task.getProcessEngineTaskId());
-        ResponseEntity<Void> response = customRestClient.postJson(enpointUri, "{}", Void.class);
+        String endPointUri = String.format("/task/%s/complete", task.getProcessEngineTaskId());
+        ResponseEntity<Void> response = customRestClient.postJson(endPointUri, completeTaskDto, Void.class);
         if (response.getStatusCode().is2xxSuccessful()) {
             task.setStatus(COMPLETED.toString());
             taskRepository.save(task);

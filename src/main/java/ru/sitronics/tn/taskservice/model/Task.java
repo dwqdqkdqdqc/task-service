@@ -8,7 +8,6 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,7 +19,6 @@ import static ru.sitronics.tn.taskservice.model.TaskStatusEnum.PENDING;
 @Table(name="task")
 public class Task extends BaseEntityUUID {
 
-    @NotNull
     private String processEngineTaskId;
     private String name;
     private String assignee;
@@ -39,6 +37,7 @@ public class Task extends BaseEntityUUID {
     private String status = PENDING.toString();
     private boolean readByAssignee;
     private String validationProcessKey;
+    private String processGroupId;
 
     @Override
     public boolean equals(Object o) {
@@ -47,7 +46,8 @@ public class Task extends BaseEntityUUID {
         if (!super.equals(o)) return false;
 
         if (isReadByAssignee() != task.isReadByAssignee()) return false;
-        if (!getProcessEngineTaskId().equals(task.getProcessEngineTaskId())) return false;
+        if (getProcessEngineTaskId() != null ? !getProcessEngineTaskId().equals(task.getProcessEngineTaskId()) : task.getProcessEngineTaskId() != null)
+            return false;
         if (getName() != null ? !getName().equals(task.getName()) : task.getName() != null) return false;
         if (getAssignee() != null ? !getAssignee().equals(task.getAssignee()) : task.getAssignee() != null)
             return false;
@@ -59,6 +59,8 @@ public class Task extends BaseEntityUUID {
         if (getDescription() != null ? !getDescription().equals(task.getDescription()) : task.getDescription() != null)
             return false;
         if (getProcessDefinitionId() != null ? !getProcessDefinitionId().equals(task.getProcessDefinitionId()) : task.getProcessDefinitionId() != null)
+            return false;
+        if (getExecutionId() != null ? !getExecutionId().equals(task.getExecutionId()) : task.getExecutionId() != null)
             return false;
         if (getProcessInstanceId() != null ? !getProcessInstanceId().equals(task.getProcessInstanceId()) : task.getProcessInstanceId() != null)
             return false;
@@ -76,7 +78,7 @@ public class Task extends BaseEntityUUID {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + getProcessEngineTaskId().hashCode();
+        result = 31 * result + (getProcessEngineTaskId() != null ? getProcessEngineTaskId().hashCode() : 0);
         result = 31 * result + (getName() != null ? getName().hashCode() : 0);
         result = 31 * result + (getAssignee() != null ? getAssignee().hashCode() : 0);
         result = 31 * result + (getCreatedInProcessEngine() != null ? getCreatedInProcessEngine().hashCode() : 0);
@@ -84,6 +86,7 @@ public class Task extends BaseEntityUUID {
         result = 31 * result + (getFollowUp() != null ? getFollowUp().hashCode() : 0);
         result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
         result = 31 * result + (getProcessDefinitionId() != null ? getProcessDefinitionId().hashCode() : 0);
+        result = 31 * result + (getExecutionId() != null ? getExecutionId().hashCode() : 0);
         result = 31 * result + (getProcessInstanceId() != null ? getProcessInstanceId().hashCode() : 0);
         result = 31 * result + (getTaskDefinitionKey() != null ? getTaskDefinitionKey().hashCode() : 0);
         result = 31 * result + (getCandidateGroups() != null ? getCandidateGroups().hashCode() : 0);

@@ -1,5 +1,7 @@
 package ru.sitronics.tn.taskservice.service;
 
+import ru.sitronics.tn.taskservice.model.DocumentTypeProcessMapping;
+
 public interface DocumentTypeProcessMappingService {
-    String getProcessKeyByDocumentType(String documentType);
+    DocumentTypeProcessMapping getByDocumentType(String documentType);
 }

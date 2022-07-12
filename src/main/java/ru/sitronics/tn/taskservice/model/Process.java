@@ -5,8 +5,9 @@ import lombok.NoArgsConstructor;
 import ru.sitronics.tn.taskservice.model.base.BaseEntityUUID;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @NoArgsConstructor
@@ -14,16 +15,12 @@ import javax.validation.constraints.NotNull;
 @Table(name = "process")
 public class Process extends BaseEntityUUID {
 
-    @NotNull
     private String processInstanceId;
-
     private String definitionId;
-
     private String documentId;
-
-    private String contractId;
-    @NotNull
-    private String documentType;
+    @ManyToOne
+    @JoinColumn(name="process_group_id")
+    private ProcessGroup processGroup;
 
     @Override
     public boolean equals(Object o) {
@@ -31,23 +28,22 @@ public class Process extends BaseEntityUUID {
         if (!(o instanceof Process process)) return false;
         if (!super.equals(o)) return false;
 
-        if (!getProcessInstanceId().equals(process.getProcessInstanceId())) return false;
+        if (getProcessInstanceId() != null ? !getProcessInstanceId().equals(process.getProcessInstanceId()) : process.getProcessInstanceId() != null)
+            return false;
         if (getDefinitionId() != null ? !getDefinitionId().equals(process.getDefinitionId()) : process.getDefinitionId() != null)
             return false;
-        if (!getDocumentId().equals(process.getDocumentId())) return false;
-        if (!getContractId().equals(process.getContractId())) return false;
-        return getContractId().equals(process.getContractId());
-
+        if (getDocumentId() != null ? !getDocumentId().equals(process.getDocumentId()) : process.getDocumentId() != null)
+            return false;
+        return getProcessGroup() != null ? getProcessGroup().equals(process.getProcessGroup()) : process.getProcessGroup() == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + getProcessInstanceId().hashCode();
+        result = 31 * result + (getProcessInstanceId() != null ? getProcessInstanceId().hashCode() : 0);
         result = 31 * result + (getDefinitionId() != null ? getDefinitionId().hashCode() : 0);
-        result = 31 * result + getDocumentId().hashCode();
-        result = 31 * result + getDocumentType().hashCode();
-        result = 31 * result + getContractId().hashCode();
+        result = 31 * result + (getDocumentId() != null ? getDocumentId().hashCode() : 0);
+        result = 31 * result + (getProcessGroup() != null ? getProcessGroup().hashCode() : 0);
         return result;
     }
 }

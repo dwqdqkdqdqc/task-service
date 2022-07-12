@@ -10,10 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import ru.sitronics.tn.taskservice.dto.TaskCountDto;
-import ru.sitronics.tn.taskservice.dto.TaskInDto;
-import ru.sitronics.tn.taskservice.dto.TaskOutDto;
-import ru.sitronics.tn.taskservice.dto.TaskPageDto;
+import ru.sitronics.tn.taskservice.dto.*;
 import ru.sitronics.tn.taskservice.model.Task;
 import ru.sitronics.tn.taskservice.service.TaskService;
 
@@ -29,11 +26,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class TaskController {
 
     private static final Logger logger = LoggerFactory.getLogger(Task.class);
-    private static final String NEW_TASK_LOG = "New task was created id:{}";
-    private static final String TASK_CLAIMED_LOG = "Task was claimed id:{}";
-    private static final String TASK_UNCLAIMED_LOG = "Task was unclaimed id:{}";
-    private static final String TASK_REASSIGNED_LOG = "Task was reassigned id:{}";
-    private static final String TASK_COMPLETED_LOG = "Task was completed id:{}";
+    private static final String NEW_TASK_LOG = "New task was created id: {}";
+    private static final String TASK_CLAIMED_LOG = "Task was claimed id: {}";
+    private static final String TASK_UNCLAIMED_LOG = "Task was unclaimed id: {}";
+    private static final String TASK_REASSIGNED_LOG = "Task was reassigned id: {}";
+    private static final String TASK_COMPLETED_LOG = "Task was completed id: {}";
 
     private final TaskService taskService;
 
@@ -94,8 +91,8 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/complete")
-    public ResponseEntity<Void> completeTask(@PathVariable UUID taskId) {
-        taskService.completeTask(taskId);
+    public ResponseEntity<Void> completeTask(@PathVariable UUID taskId, @RequestBody CompleteTaskDto completeTaskDto) {
+        taskService.completeTask(taskId, completeTaskDto);
         logger.info(TASK_COMPLETED_LOG, taskId);
         return ResponseEntity.noContent().build();
     }

@@ -8,6 +8,5 @@ import java.util.Map;
 public class ProcessInstanceDto {
     private String id;
     private String definitionId;
-    private String contractId;
     private Map<String, VariableValueDto> variables;
 }

@@ -8,13 +8,15 @@ import ru.sitronics.tn.taskservice.dto.ProcessInstanceDto;
 import ru.sitronics.tn.taskservice.dto.StartProcessInstanceDto;
 import ru.sitronics.tn.taskservice.dto.VariableValueDto;
 import ru.sitronics.tn.taskservice.exception.ProcessGroupException;
+import ru.sitronics.tn.taskservice.model.DocumentTypeProcessMapping;
 import ru.sitronics.tn.taskservice.model.Process;
 import ru.sitronics.tn.taskservice.model.ProcessGroup;
+import ru.sitronics.tn.taskservice.model.ProcessGroupStatusEnum;
 import ru.sitronics.tn.taskservice.repository.ProcessGroupRepository;
 import ru.sitronics.tn.taskservice.util.CustomRestClient;
 import ru.sitronics.tn.taskservice.util.ObjectUtils;
+import ru.sitronics.tn.taskservice.validation.BpmValidation;
 
-import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -23,16 +25,30 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ProcessGroupServiceImpl implements ProcessGroupService {
 
-    private final ProcessGroupRepository processGroupRepository;
+    private final ProcessService processService;
     private final DocumentTypeProcessMappingService documentTypeProcessMappingService;
     private final CustomRestClient customRestClient;
+    private final ProcessGroupRepository processGroupRepository;
+    private final BpmValidation bpmValidation;
 
     @Override
-    @Transactional
     public ProcessGroupDto createProcessGroup(ProcessGroupDto processGroupDto) {
 
-        String processKey = documentTypeProcessMappingService
-                .getProcessKeyByDocumentType(processGroupDto.getDocumentType());
+        //TODO Refactor variable setting with BpmValidation
+
+        ProcessGroup processGroup = processGroupRepository
+                .save(ObjectUtils.convertObject(processGroupDto, new ProcessGroup()));
+
+        DocumentTypeProcessMapping documentTypeProcessMapping = documentTypeProcessMappingService
+                .getByDocumentType(processGroupDto.getDocumentType());
+
+        if (documentTypeProcessMapping.getValidationProcessKey() != null) {
+            String validationProcessKey = documentTypeProcessMapping.getValidationProcessKey();
+            bpmValidation.validateProcessStart(processGroup, processGroupDto, validationProcessKey);
+        }
+
+        String processKey = documentTypeProcessMapping.getProcessKey();
+
         String endPointUri = String.format("/process-definition/key/%s/start", processKey);
         StartProcessInstanceDto startProcessInstanceDto = new StartProcessInstanceDto();
 
@@ -46,18 +62,22 @@ public class ProcessGroupServiceImpl implements ProcessGroupService {
 
         Map<String, VariableValueDto> variableValueDtoMap = new HashMap<>();
 
+        if (processGroupDto.getVariables() != null) {
+            variableValueDtoMap.putAll(processGroupDto.getVariables());
+        }
+
         variableValueDtoMap.put("documentId", documentIdVariable);
         variableValueDtoMap.put("startedBy", startedByIdVariable);
 
+        startProcessInstanceDto.setBusinessKey(processGroup.getId().toString());
         startProcessInstanceDto.setVariables(variableValueDtoMap);
 
         ResponseEntity<ProcessInstanceDto> processEngineResponse =
                 customRestClient.postJson(endPointUri, startProcessInstanceDto, ProcessInstanceDto.class);
 
-        if(processEngineResponse.getStatusCode().is2xxSuccessful()) {
+        if (processEngineResponse.getStatusCode().is2xxSuccessful()) {
 
             Process process = new Process();
-
             try {
                 ProcessInstanceDto processInstanceDto = Objects.requireNonNull(processEngineResponse.getBody());
                 process.setProcessInstanceId(processInstanceDto.getId());
@@ -65,27 +85,12 @@ public class ProcessGroupServiceImpl implements ProcessGroupService {
             } catch (NullPointerException e) {
                 throw new ProcessGroupException("Process instance is null", e);
             }
-
             process.setDocumentId(processGroupDto.getDocumentId());
-            process.setDocumentType(processGroupDto.getDocumentType());
-
-            ProcessGroup processGroup = ObjectUtils.convertObject(processGroupDto, new ProcessGroup());
-            processGroup.getProcesses().add(process);
-            return ObjectUtils.convertObject(processGroupRepository.save(processGroup), new ProcessGroupDto());
+            processGroup.setStatus(ProcessGroupStatusEnum.IN_PROGRESS.toString());
+            process.setProcessGroup(processGroup);
+            return processService.createProcess(process).getProcessGroupDto();
         } else {
             throw new ProcessGroupException("Process start was unsuccessful");
         }
-    }
-
-    @Transactional
-    public ProcessGroup save(ProcessGroup processGroup) {
-        return processGroupRepository.save(processGroup);
-    }
-
-    //TODO Find unique constraint for ProcessGroup
-    public ProcessGroup getProcessGroupByDocumentId(String documentId) {
-        return processGroupRepository
-                .findByDocumentId(documentId)
-                .orElseThrow(() -> new ProcessGroupException(String.format("ProcessGroup is not found by documentId: %s", documentId)));
     }
 }

@@ -22,14 +22,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 public class ProcessGroupController {
     private static final Logger logger = LoggerFactory.getLogger(ProcessGroup.class);
-    private static final String NEW_PROCESS_GROUP_LOG = "New process group was created id:{}";
+    private static final String NEW_PROCESS_GROUP_LOG = "Creating new process group: {}";
 
     private final ProcessGroupService processGroupService;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<ProcessGroupDto> createProcessGroup(@Valid @RequestBody ProcessGroupDto processGroupDto) {
+        logger.info(NEW_PROCESS_GROUP_LOG, processGroupDto);
         final ProcessGroupDto response = processGroupService.createProcessGroup(processGroupDto);
-        logger.info(NEW_PROCESS_GROUP_LOG, response.toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

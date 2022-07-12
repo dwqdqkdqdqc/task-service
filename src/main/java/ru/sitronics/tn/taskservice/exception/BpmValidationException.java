@@ -4,13 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST, code = HttpStatus.BAD_REQUEST)
-public class TaskValidationException extends RuntimeException {
+public class BpmValidationException extends RuntimeException {
 
-    public TaskValidationException(String message) {
+    public BpmValidationException(String message) {
         super(message);
     }
 
-    public TaskValidationException(String message, Throwable cause) {
+    public BpmValidationException(String message, Throwable cause) {
         super(message, cause);
     }
 }

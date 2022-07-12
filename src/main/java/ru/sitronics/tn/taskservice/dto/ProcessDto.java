@@ -12,5 +12,5 @@ public class ProcessDto {
     private String processInstanceId;
     private String definitionId;
     private String documentId;
-    private String contractId;
+    private ProcessGroupDto processGroupDto;
 }
