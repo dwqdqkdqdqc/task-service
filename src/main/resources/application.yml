@@ -29,3 +29,9 @@ spring:
 rsql:
   defaultSort: ${DEFAULT_SORT:createdAt,asc}
   defaultPageSize: ${DEFAULT_PAGE_SIZE:10}
+
+logging:
+  logback:
+    rollingpolicy:
+      max-history: 0
+      max-file-size: 25MB
