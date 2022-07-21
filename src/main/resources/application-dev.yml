@@ -6,4 +6,4 @@ bpms-proxy:
 
 logging:
   level:
-    root: WARN
+    root: INFO
