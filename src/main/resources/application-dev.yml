@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8092}
+  port: ${SERVER_PORT:8080}
 
 bpms-proxy:
   url: http://${BPMS_PROXY_HOST:213.108.129.175}:${BPMS_PROXY_PORT:8090}
