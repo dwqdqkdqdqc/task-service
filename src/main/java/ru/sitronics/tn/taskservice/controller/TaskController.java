@@ -108,4 +108,10 @@ public class TaskController {
                                                  @RequestBody TaskInDto taskInDto){
         return ResponseEntity.ok(taskService.updateTask(taskId,taskInDto));
     }
+
+    @PatchMapping("/update-by-process-engine-id/{processEngineTaskId}")
+    public ResponseEntity<TaskOutDto> updateByProcessEngineTaskId(@PathVariable String processEngineTaskId,
+                                                 @RequestBody TaskInDto taskInDto){
+        return ResponseEntity.ok(taskService.updateByProcessEngineTaskId(processEngineTaskId,taskInDto));
+    }
 }

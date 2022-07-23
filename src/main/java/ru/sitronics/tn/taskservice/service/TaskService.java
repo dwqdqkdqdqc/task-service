@@ -16,4 +16,5 @@ public interface TaskService {
     TaskCountDto countByAssigneeAndReadByAssignee(String assignee, boolean readByAssignee);
     void completeTask(UUID taskId, CompleteTaskDto completeTaskDto);
     TaskOutDto updateTask(UUID taskId,TaskInDto taskDto);
+    TaskOutDto updateByProcessEngineTaskId(String processEngineTaskId, TaskInDto taskInDto);
 }

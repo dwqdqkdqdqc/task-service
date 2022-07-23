@@ -121,11 +121,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public void claimTask(UUID taskId, String userId) {
-        Task task = taskRepository.findById(taskId).orElseThrow(
-                () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
-        if (task.getStatus().equals(COMPLETED.toString())) {
-            throw new IllegalActionException("Task is already completed");
-        }
+        Task task = getTask(taskId);
+        checkIfStatusValid(task);
         if (!StringUtils.hasText(task.getAssignee())) {
             task.setAssignee(userId);
             task.setStatus(IN_PROGRESS.toString());
@@ -138,11 +135,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public void unclaimTask(UUID taskId) {
-        Task task = taskRepository.findById(taskId).orElseThrow(
-                () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
-        if (task.getStatus().equals(COMPLETED.toString())) {
-            throw new IllegalActionException("Task is already completed");
-        }
+        Task task = getTask(taskId);
+        checkIfStatusValid(task);
         task.setAssignee(null);
         task.setStatus(PENDING.toString());
         task.setReadByAssignee(false);
@@ -152,11 +146,8 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public void reassignByCurrentUser(UUID taskId, String currentUserId, String newUserId) {
-        Task task = taskRepository.findById(taskId).orElseThrow(
-                () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
-        if (task.getStatus().equals(COMPLETED.toString())) {
-            throw new IllegalActionException("Task is already completed");
-        }
+        Task task = getTask(taskId);
+        checkIfStatusValid(task);
         if (Objects.equals(task.getAssignee(), currentUserId) && StringUtils.hasText(currentUserId)) {
             task.setAssignee(newUserId);
             task.setReadByAssignee(false);
@@ -177,11 +168,8 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     //TODO UserId validation?
     public void completeTask(UUID taskId, CompleteTaskDto completeTaskDto) {
-        Task task = taskRepository.findById(taskId).orElseThrow(
-                () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
-        if (task.getStatus().equals(COMPLETED.toString())) {
-            throw new IllegalActionException("Task is already completed");
-        }
+        Task task = getTask(taskId);
+        checkIfStatusValid(task);
         if (!task.getValidationProcessKey().isBlank()) {
             bpmValidation.validateTaskCompletion(task, completeTaskDto, task.getValidationProcessKey());
         }
@@ -200,14 +188,37 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskOutDto updateTask(UUID taskId, TaskInDto taskInDto){
-        Task task = taskRepository.findById(taskId).orElseThrow(
-                () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
-        if (task.getStatus().equals(COMPLETED.toString())) {
-            throw new IllegalActionException("Task is already completed");
-        }
+        Task task = getTask(taskId);
+        checkIfStatusValid(task);
+        return updateTaskReturnDto(taskInDto, task);
+    }
+
+    @Override
+    public TaskOutDto updateByProcessEngineTaskId(String processEngineTaskId, TaskInDto taskInDto) {
+        Task task = taskRepository.findByProcessEngineTaskId(processEngineTaskId).orElseThrow(
+                () -> new ResourceNotFoundException(String.format("Task with processEngineTaskId %s is not found", processEngineTaskId)));
+        checkIfStatusValid(task);
+        return updateTaskReturnDto(taskInDto, task);
+    }
+
+    private TaskOutDto updateTaskReturnDto(TaskInDto taskInDto, Task task) {
         Task partialUpdateTask = new Task();
         ObjectUtils.convertObject(taskInDto, partialUpdateTask);
         Task updatedTask =  ObjectUtils.partialUpdate(task, partialUpdateTask);
         return ObjectUtils.convertObject(taskRepository.save(updatedTask), new TaskOutDto());
+    }
+
+    private Task getTask(UUID taskId) {
+        return taskRepository.findById(taskId).orElseThrow(
+                () -> new ResourceNotFoundException(String.format("Task with id %s is not found", taskId)));
+    }
+
+    private void checkIfStatusValid(Task task) {
+        if (task.getStatus().equals(COMPLETED.toString())) {
+            throw new IllegalActionException("Task is completed");
+        }
+        if (task.getStatus().equals(CLOSED.toString())) {
+            throw new IllegalActionException("Task is closed");
+        }
     }
 }
