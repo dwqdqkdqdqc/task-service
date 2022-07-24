@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.sitronics.tn.taskservice.dto.ProcessGroupDto;
-import ru.sitronics.tn.taskservice.model.ProcessGroup;
 import ru.sitronics.tn.taskservice.service.ProcessGroupService;
 
 import javax.validation.Valid;
@@ -21,7 +20,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(path = "/process-group", produces = APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class ProcessGroupController {
-    private static final Logger logger = LoggerFactory.getLogger(ProcessGroup.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProcessGroupController.class);
     private static final String NEW_PROCESS_GROUP_LOG = "Creating new process group: {}";
 
     private final ProcessGroupService processGroupService;
