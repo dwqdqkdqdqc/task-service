@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -40,6 +41,7 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String TIMESTAMP = "timestamp";
     private static final String TYPE = "type";
 
+    //TODO Not annotated method overrides method annotated with @NonNullApi
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException exception,
@@ -53,6 +55,7 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
         return getExceptionResponseEntity(exception, HttpStatus.BAD_REQUEST, request, validationErrors);
     }
 
+    //TODO Not annotated method overrides method annotated with @NonNullApi
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             HttpMessageNotReadableException exception,
@@ -70,6 +73,16 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
                         violation.getPropertyPath() + FIELD_ERROR_SEPARATOR + violation.getMessage())
                 .collect(Collectors.toList());
         return getExceptionResponseEntity(exception, HttpStatus.BAD_REQUEST, request, validationErrors);
+    }
+
+    @ExceptionHandler({HttpClientErrorException.class})
+    public ResponseEntity<Object> handleHttpClientErrorExceptions(HttpClientErrorException exception, WebRequest request) {
+        final HttpStatus status = exception.getStatusCode();
+        final String localizedMessage = exception.getLocalizedMessage();
+        final String path = request.getDescription(false);
+        String message = (StringUtils.hasText(localizedMessage) ? localizedMessage:status.getReasonPhrase());
+        logger.error(String.format(ERROR_MESSAGE_TEMPLATE, message, path), exception);
+        return getExceptionResponseEntity(exception, status, request, Collections.singletonList(message));
     }
 
     /**

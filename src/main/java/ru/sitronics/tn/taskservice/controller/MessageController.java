@@ -23,7 +23,7 @@ public class MessageController {
     private final MessageService messageService;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageCorrelationResultDto> correlateMessage(@RequestBody CorrelationMessageDto correlateMessageDto) {
+    public ResponseEntity<MessageCorrelationResultDto[]> correlateMessage(@RequestBody CorrelationMessageDto correlateMessageDto) {
         logger.info(CORRELATING_MESSAGE_LOG, correlateMessageDto);
         return ResponseEntity.ok(messageService.correlateMessage(correlateMessageDto));
     }
