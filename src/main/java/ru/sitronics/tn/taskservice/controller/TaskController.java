@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import ru.sitronics.tn.taskservice.dto.*;
-import ru.sitronics.tn.taskservice.model.Task;
 import ru.sitronics.tn.taskservice.service.TaskService;
 
 import javax.validation.Valid;
@@ -25,7 +24,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 public class TaskController {
 
-    private static final Logger logger = LoggerFactory.getLogger(Task.class);
+    private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
     private static final String NEW_TASK_LOG = "New task was created id: {}";
     private static final String TASK_CLAIMED_LOG = "Task was claimed id: {}";
     private static final String TASK_UNCLAIMED_LOG = "Task was unclaimed id: {}";
@@ -107,5 +106,11 @@ public class TaskController {
     public ResponseEntity<TaskOutDto> updateTask(@PathVariable UUID taskId,
                                                  @RequestBody TaskInDto taskInDto){
         return ResponseEntity.ok(taskService.updateTask(taskId,taskInDto));
+    }
+
+    @PatchMapping("/update-by-process-engine-id/{processEngineTaskId}")
+    public ResponseEntity<TaskOutDto> updateByProcessEngineTaskId(@PathVariable String processEngineTaskId,
+                                                 @RequestBody TaskInDto taskInDto){
+        return ResponseEntity.ok(taskService.updateByProcessEngineTaskId(processEngineTaskId,taskInDto));
     }
 }
